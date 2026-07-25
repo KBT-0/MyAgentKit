@@ -1,0 +1,16 @@
+# MyAgentKit's OWN ignore file. This is not the .gitignore the kit installs into a
+# project — that one lives in core/.gitignore and is assembled from fragments.
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vs/
+
+# Output of a local bootstrap.sh smoke test (see docs/ACCEPTANCE.md).
+/.smoke-test/
+
+# Agent tooling working copies, never repository content.
+.claude/worktrees/
