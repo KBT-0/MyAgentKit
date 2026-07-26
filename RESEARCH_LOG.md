@@ -217,7 +217,46 @@ shell, a failure signal that must escape a command substitution cannot be an `ex
 variable — it has to be a side effect on the filesystem.** The kit's scanner now drops a flag
 file, checked by the main shell after every scan has run.
 
-#### 8. Every-session files are a recurring bill, not a style preference — ACCEPTED
+#### 8. A gate aimed at a path that does not exist is worse than no gate — ACCEPTED
+
+Found by applying this kit's own review findings back to the project it came from, which is
+the backflow loop working as intended — though in the wrong order: the fix landed in the
+project first and reached the kit afterwards, which is exactly the drift `docs/UPDATING.md`
+warns against.
+
+That project's highest-risk check guards its money modules against floating-point
+arithmetic:
+
+```sh
+hits=$(grep -rn --include="*.cs" -E "float|double" \
+  shared/Core.Economy shared/Core.Trade 2>/dev/null | grep -v "// non-monetary:" || true)
+```
+
+Neither directory exists yet — that work is scheduled, not started. `grep` exits 2,
+`2>/dev/null` hides the reason, `|| true` converts the failure into success, `hits` is
+empty, and the most important gate in a project about a player-driven economy had been
+printing PASS without reading one line, for its entire existence. Confirmed directly before
+anything was changed: exit status 2, no output.
+
+Two distinct traps, and the second is the one worth carrying:
+
+- **A scanner pointed at a missing path is indistinguishable from a scanner that found
+  nothing.** Only the exit status separates them, and `|| true` throws it away. This is
+  finding #1's shape once more, arriving through a construct that reads as defensive.
+- **A gate written ahead of the code it guards accrues the CREDIBILITY of a gate while
+  doing nothing.** Everyone can see the check in the script, so nobody re-derives whether
+  it fires. When the module finally lands — quite possibly under a slightly different name,
+  because names change between planning and building — nothing announces that the gate
+  missed it. The gate's silence is identical before and after.
+
+What went into the kit: `core/scripts/boundary_checks.sh` tells the author to declare the
+guarded paths in a variable, to check that at least one of them EXISTS, and to print an
+explicit dormant notice when none do, rather than scanning nothing quietly. Absent evidence
+must be visible — the same rule as finding #1, applied to the target of a scan rather than
+to its result. The periodic-audit checklist gained the matching question: *does any gate
+guard a path that no longer exists?*
+
+#### 9. Every-session files are a recurring bill, not a style preference — ACCEPTED
 
 Cached input tokens are discounted heavily, which makes the always-loaded prefix — the
 constitution, the architecture map, the state file — the largest single cost lever in a

@@ -48,4 +48,9 @@ second one reviewing the first one's fixes:
 Both reports are archived under `docs/reviews/` as evidence. `docs/ACCEPTANCE.md` lists what
 was executed and what was not.
 
+The first backflow from a project arrived the same day: applying these findings back to the
+founding project uncovered a gate aimed at two directories that did not exist yet, which had
+therefore reported PASS without reading a line since it was written. `boundary_checks.sh` and
+the audit checklist now cover it (`RESEARCH_LOG.md` backflow finding #8).
+
 **ACTION** — none. There is no earlier version to upgrade from.

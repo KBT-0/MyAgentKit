@@ -90,7 +90,11 @@ which NO code is written:
 - Duplicate and dead code hunt.
 - READMEs versus actual public APIs.
 - Module size and complexity report.
-- **Gate audit:** run `./scripts/check.sh --self-test`. Does every gate still go red?
+- **Gate audit:** run `./scripts/check.sh --self-test`. Does every gate still go red, and
+  does every check have a case? Then ask the question the self-test cannot: **does any gate
+  guard a path that does not exist?** A scan over a missing directory finds nothing and
+  looks exactly like a clean result, so such a gate reports PASS forever while protecting
+  nothing — and its silence is identical before and after the module it guards arrives.
 - **Tooling review:** "Has anything appeared in the agent-tooling ecosystem that would
   measurably help this workflow — and what would it cost in permanent context tokens?" The
   default answer is NO; a tool must earn its recurring cost. Record the answer either way,
