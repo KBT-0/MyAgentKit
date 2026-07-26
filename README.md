@@ -91,21 +91,63 @@ the value of a second opinion is that it is *decorrelated* — a different model
 one asked twice. That needs two CLIs. The pairing below is the one this was built and used
 on, and it is a recommendation rather than a requirement:
 
-**Run Claude Code as your main agent.** `overlays/claude-code/` gives it the editor-side
-hooks (a boundary guard on every edit, the gate on every turn end), the `/handoff` and
-`/cross-review` skills, and a read-only review subagent.
+**Run Claude Code as your main agent**, with `overlays/claude-code/`. It contributes:
 
-**Add the Codex CLI as the reviewer.** Two independent paths, and you can take either or
-both:
+- **`/cross-review`** — the review gate as a command. This is the kit's own, and the section
+  below explains why it is not the same thing as a review command.
+- **`/handoff`** — turns the current work into ONE self-contained prompt for another tool,
+  model or session, so nothing depends on chat history the next reader cannot see.
+- **A read-only `diff-reviewer` subagent** — the review protocol without a second CLI, for
+  when you want a fresh reviewing session rather than a fresh vendor.
+- **Two editor-side hooks** — a boundary guard that fires the moment a forbidden import is
+  written, and the gate on every turn end. Neither is load-bearing; they shorten the
+  feedback loop from "next commit" to "next second".
 
-- **`scripts/review.sh`** — the kit's own wrapper. Needs only the `codex` binary, no plugin.
-  It pins the sandbox to read-only, carries `REVIEW_GATE.md`'s priority order, and archives
-  every report under `docs/reviews/` as evidence. This is the one the gate refers to.
-- **OpenAI's `codex` plugin for Claude Code** (`/plugin install codex@openai-codex`) — a
-  nicer in-session path to the same second model. It adds `/codex:review`,
-  `/codex:adversarial-review` (challenges the design, not just the defects), `/codex:rescue`
-  for delegating an investigation or a stuck fix to a Codex subagent, and `/codex:transfer`
-  to hand the whole session over to a resumable Codex thread.
+**Add the Codex CLI as the second model.** `scripts/review.sh` shells out to it and needs
+only the `codex` binary — no plugin. Optionally add **OpenAI's `codex` plugin**
+(`/plugin install codex@openai-codex`), which contributes `/codex:review`,
+`/codex:adversarial-review` (challenges the design and the tradeoffs, not just the defects),
+`/codex:rescue` for handing an investigation or a stuck fix to a Codex subagent, and
+`/codex:transfer` to move the session into a resumable Codex thread.
+
+### `/cross-review` and `/codex:review` are not the same thing
+
+Install both. They answer different questions, and the difference is the whole point of the
+gate.
+
+**`/codex:review` is a review tool.** It runs a second model over your git state and hands
+you its findings. Fast, generic, useful, and it knows nothing about your project.
+
+**`/cross-review` is the review gate protocol**, which uses a second model as one input.
+Four things it does that a review command does not:
+
+1. **It makes you verify.** The reviewer's output is treated as *untrusted input*, never a
+   verdict. The calling agent has to check every finding against the code, drop what it
+   disproves, keep what it confirms, and say which is which — relaying a verdict unchecked
+   is a failed review **in either direction**, including a relayed Accept. This is the
+   load-bearing rule, and it is the one a generic review command cannot enforce, because it
+   has no opinion about what you do with its output.
+2. **It carries YOUR project's priorities.** The prompt is built from `docs/REVIEW_GATE.md`:
+   your risky areas, your design authority, your worst failure mode reviewed first. A
+   generic reviewer does not know that money paths in your codebase are more dangerous than
+   everything else in it.
+3. **It archives evidence.** Every run writes `docs/reviews/<UTC-timestamp>-<branch>.md`
+   recording model, reasoning effort, sandbox mode, scope, branch and HEAD — and that file
+   is never edited afterwards. Six weeks later "was this reviewed, by what, at what
+   setting?" is answerable instead of remembered.
+4. **It ends in a verdict that goes somewhere.** `Accept` / `Accept with Manual Checks` /
+   `Reject`, with any manual checks written into `docs/STATE.md` as full sentences *before*
+   the commit — so an unverifiable claim becomes a standing obligation rather than a
+   sentence in a chat log.
+
+It also refuses to fail open: read-only is pinned in the wrapper rather than trusted to the
+CLI, the three scope flags are the only arguments accepted (an agent cannot talk it into a
+write-capable run), an empty change set exits nonzero instead of reporting a passed review,
+and a report with no verdict line is a failure rather than a success.
+
+Practically: reach for `/codex:review` or `/codex:adversarial-review` whenever you want
+another pair of eyes. Use `/cross-review` when the gate applies — risky diffs, and every
+change to a gate.
 
 **Why this direction and not the reverse.** The integrations are asymmetric: OpenAI ships a
 Codex plugin that runs inside Claude Code, and there is no equivalent Anthropic-published

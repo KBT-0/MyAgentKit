@@ -27,7 +27,7 @@ are already in the core.
 | `.claude/hooks/guard_boundaries.py` | Flags a forbidden import the moment it is written, seconds instead of a commit |
 | `.claude/agents/diff-reviewer.md` | Read-only review subagent following `docs/REVIEW_GATE.md` |
 | `.claude/skills/handoff/` | `/handoff` — wraps `docs/HANDOFF.md` |
-| `.claude/skills/cross-review/` | `/cross-review` — wraps `scripts/review.sh` plus the verification duty |
+| `.claude/skills/cross-review/` | `/cross-review` — the review GATE: runs `scripts/review.sh`, then makes the caller verify every finding and own the verdict |
 
 ## What `/cross-review` needs
 
@@ -38,6 +38,13 @@ missing and falls back to the paste-by-hand template in `docs/REVIEW_GATE.md`.
 The vendor plugin (`openai/codex-plugin-cc`) is OPTIONAL and is not used by
 `scripts/review.sh`; it adds in-session delegation commands. `docs/DEV_SETUP.md` §3 covers
 both, including the two cautions worth reading before installing it.
+
+Install it ALONGSIDE `/cross-review`, not instead of it. Its `/codex:review` is a review
+TOOL — a second model over your git state, generic and fast. `/cross-review` is the review
+GATE: it carries this project's own priority order, requires the caller to verify each
+finding instead of relaying it, archives the report as evidence under `docs/reviews/`, and
+ends in a verdict whose manual checks land in `docs/STATE.md` before the commit. Different
+jobs. The kit README's "Recommended setup" section spells the difference out.
 
 ## The hooks are not the gate
 
