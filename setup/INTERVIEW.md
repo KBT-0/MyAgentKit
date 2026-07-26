@@ -1,3 +1,5 @@
+<!-- KIT-OWNED: do not edit locally; change it in the kit and re-sync. -->
+
 # SETUP INTERVIEW — read this, then run it
 
 You are a CLI coding agent. Someone just installed a project foundation kit into this
@@ -109,6 +111,9 @@ becomes `{{DESIGN_DOC}}` everywhere else.
 
 Now fill in the files. Work through the placeholders below; `grep -rn '{{[A-Z_]*}}' .` finds
 any you missed, and the gate will find the rest.
+
+An installed overlay brings its own placeholders, which are not in these tables — the grep
+above is what catches them, and the overlay's own document explains each one.
 
 ### Identity and people
 

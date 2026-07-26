@@ -1,3 +1,5 @@
+<!-- KIT-OWNED: do not edit locally; change it in the kit and re-sync. -->
+
 # RESEARCH PROTOCOL — what changed in the agent-tooling ecosystem
 
 You are a CLI coding agent, running this either as Phase 1 of a project setup

@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+# KIT-OWNED: do not edit locally; change it in the kit and re-sync.
 # Runs the project gate before every commit, so passing it never depends on an agent (or a
 # human) remembering to. Same script CI runs — local PASS == CI PASS.
 #

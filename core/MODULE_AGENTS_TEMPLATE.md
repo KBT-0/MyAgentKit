@@ -1,3 +1,5 @@
+<!-- KIT-OWNED: do not edit locally; change it in the kit and re-sync. -->
+
 # /{{MODULE}} rules
 
 <!-- Copy this to each top-level module folder as its AGENTS.md, alongside a two-line

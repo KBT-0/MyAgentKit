@@ -5,6 +5,7 @@ description: >
   model or session. Use at the end of research when the work will be done elsewhere.
   Input: target tool + task summary.
 ---
+<!-- KIT-OWNED: do not edit locally; change it in the kit and re-sync. -->
 # /handoff <target> <task summary>
 
 Follow `docs/HANDOFF.md` (canonical) exactly: task and non-goals, file paths verified to
