@@ -10,6 +10,13 @@ description: >
 {{OWNER_NAME}} must have asked for this in this session — it spends another tool's budget
 (`docs/WORKFLOW.md`).
 
+**Needs a second CLI on this machine.** `scripts/review.sh` shells out to it; out of the box
+it targets the Codex CLI. If the script reports it is missing, do not work around it and do
+not review the diff yourself instead — that would defeat the point, since you may be the
+author. Tell {{OWNER_NAME}} it is not installed, offer to install it, and point at
+`docs/DEV_SETUP.md` §3. The fallback while it is missing is the paste-by-hand template in
+`docs/REVIEW_GATE.md`, run in a genuinely fresh session.
+
 1. Run `./scripts/review.sh` with the scope asked for: `--uncommitted` (default),
    `--base <ref>` or `--commit <sha>`. Those three are the ONLY arguments it takes; never
    try to pass anything else through.

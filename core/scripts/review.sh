@@ -16,7 +16,13 @@
 # The result is INPUT to a review decision the CALLING agent owns, never a verdict to relay
 # verbatim (docs/REVIEW_GATE.md).
 #
-# Configured with environment variables, so the kit does not hardcode a vendor:
+# THIS SCRIPT TARGETS THE CODEX CLI'S INTERFACE. Be clear-eyed about that: the invocation
+# below uses `exec -m … -s read-only -c … -o …`, which is Codex-shaped. The environment
+# variables make the BINARY configurable, not the contract — pointing REVIEW_CLI_BIN at a
+# different CLI sends it flags it does not understand. Supporting another reviewer means
+# editing the invocation block, and that is a small, honest edit rather than a promise this
+# header pretends to have kept.
+#
 #   REVIEW_CLI_BIN   the reviewing CLI            (default: codex)
 #   REVIEW_MODEL     model id to pin              (default: the CLI's own default)
 #   REVIEW_EFFORT    reasoning effort             (default: high)
@@ -93,8 +99,14 @@ esac
 
 diff_bytes=$(printf '%s' "$diff" | wc -c)
 if [ "$diff_bytes" -lt 2 ]; then
-  echo "review: nothing to review in $scope_label — no budget spent."
-  exit 0
+  # NONZERO on purpose. Somebody asked for a review, so an empty change set is a surprise
+  # worth stopping on, not a quiet success: a zero exit here lets a caller report "the
+  # review ran and found nothing" when in fact nothing was reviewed. That is the same
+  # fail-open shape this whole script exists to avoid — and the founding project shipped it.
+  echo "FAIL [review]: $scope_label contains no changes. Nothing was reviewed."
+  echo "               If that is expected, say so explicitly instead of treating this as a"
+  echo "               passed review. Check the scope flag: --uncommitted, --base, --commit."
+  exit 3
 fi
 # A diff this size does not get a careful review, it gets a summary. Narrow the scope.
 if [ "$diff_bytes" -gt 400000 ]; then
@@ -181,7 +193,26 @@ usage_line=$(sed "s/${esc}\[[0-9;]*[a-zA-Z]//g" "$log" 2>/dev/null \
     cat "$log"
     echo '```'
   fi
-} > "$report"
+} > "$report" || {
+  echo "FAIL [review]: could not write $report. The review may have run, but there is no"
+  echo "               durable evidence of it, and an unarchived review did not happen."
+  exit 4
+}
+
+# Evidence checks. A wrapper that returns success without a readable, non-trivial report is
+# reporting on work nobody can inspect afterwards.
+if [ ! -s "$report" ]; then
+  echo "FAIL [review]: $report is empty after writing. Refusing to claim a review happened."
+  exit 4
+fi
+if [ ! -s "$last" ]; then
+  echo "WARN [review]: the reviewing CLI produced no final message; the report carries the"
+  echo "               raw transcript instead. Read it before treating this as a review."
+fi
+if ! grep -q '^VERDICT:' "$report"; then
+  echo "WARN [review]: no VERDICT line in the report. The run may have been cut short —"
+  echo "               do not record a verdict the reviewer did not give."
+fi
 
 cat "$report"
 [ "$status" -eq 0 ] || echo "FAIL [review]: $cli exited $status — see the transcript above."

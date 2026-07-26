@@ -31,4 +31,11 @@ Founding content, with the failure each rule prevents recorded in `RESEARCH_LOG.
   blank.
 - Always-loaded documents are a recurring token bill and are kept small and stable.
 
+Reviewed before release by a second model (Codex CLI, gpt-5.6-sol, read-only): **Reject,
+seventeen findings**, five of them fail-open paths in the gates. All fixed before publishing;
+report archived under `docs/reviews/`, reasoning in `RESEARCH_LOG.md` backflow finding #6.
+Notable consequences: `.claude/` moved out of `core/` into `overlays/claude-code/`, and
+`scripts/review.sh` now states that it targets the Codex CLI's interface rather than
+implying vendor neutrality.
+
 **ACTION** — none. There is no earlier version to upgrade from.

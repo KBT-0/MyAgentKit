@@ -39,7 +39,7 @@ _(none yet — the first entries arrive with the first research pass)_
 ### 2026-07-26 — from `project_leeway` (the project this kit was extracted from)
 
 `project_leeway` is a Unity + .NET multiplayer game written almost entirely by CLI agents
-(Claude Code and Codex) over roughly two months. These five findings are what it paid for
+(Claude Code and Codex) over roughly two months. The findings below are what it paid for
 in real budget and real broken gates. They are the kit's founding content, not later
 additions.
 
@@ -145,7 +145,38 @@ What went into the kit: the checks and their negative tests live in their own so
 unit of replacement is a file rather than a line, the mistake is not available. Where a
 placeholder must stay inline it is now a VALUE in a quoted string, never a statement.
 
-#### 6. Every-session files are a recurring bill, not a style preference — ACCEPTED
+#### 6. A gate's author cannot find its fail-open paths — ACCEPTED
+
+The strongest evidence in this log, because it happened to this kit rather than to the
+project it came from. v0.1 was written in one session, its gates were exercised, its
+negative tests passed, and it was published with an acceptance record. A cross-model review
+then returned **Reject** with seventeen findings, five of which were fail-open paths in the
+gates themselves.
+
+The two that matter most were invisible from the inside:
+
+- **A bootstrapped project could never go green.** The placeholder scan flagged markers in
+  `setup/INTERVIEW.md` and the module template — two files that carry them on purpose,
+  forever, and that `sync-kit.sh` restores if deleted. The author's own acceptance test had
+  missed it because that test deleted `setup/` before running the gate. **The verification
+  was shaped by the same assumption as the defect.**
+- **A failing file-listing became "no matches".** The producer sat on the non-final side of
+  a pipeline ending in `|| true`, so a failed `git ls-files` was indistinguishable from a
+  clean scan, and the gate went green having scanned nothing. This is finding #1 of this log
+  reappearing inside the script written to prevent finding #1.
+
+What went into the kit: the fixes, each with a negative test; `docs/ACCEPTANCE.md` rewritten
+to separate what was executed from what was not; and the review report archived under
+`docs/reviews/` as evidence rather than summarised.
+
+What is worth keeping beyond the fixes: **an author's negative tests inherit the author's
+blind spot.** They prove the failures you thought of. A second model is not a formality on
+top of them — it is the only thing that finds the failure mode you designed your test
+around. Reviewing gate code by a fresh session is now a permanent, non-placeholder entry in
+`core/docs/REVIEW_GATE.md`; this is the third time in two repositories that the rule has
+been earned rather than assumed.
+
+#### 7. Every-session files are a recurring bill, not a style preference — ACCEPTED
 
 Cached input tokens are discounted heavily, which makes the always-loaded prefix — the
 constitution, the architecture map, the state file — the largest single cost lever in a

@@ -44,6 +44,9 @@ have=$(tr -d '[:space:]' < "$stamp")
 latest=$(sed -n 's/^## v\([0-9][0-9.]*\).*/\1/p' "$kit/CHANGELOG.md" | head -1)
 [ -n "$latest" ] || die "cannot read a version from $kit/CHANGELOG.md"
 
+work_list=$(mktemp) || { echo "sync-kit: cannot create a temp file" >&2; exit 1; }
+trap 'rm -f "$work_list"' EXIT INT TERM
+
 echo "sync-kit: project has v$have, kit is v$latest"
 if [ "$have" = "$latest" ]; then
   echo "sync-kit: already current. Nothing to do."
@@ -54,7 +57,11 @@ fi
 echo
 echo "KIT-OWNED files (overwritten):"
 found=0
-for src in $(grep -rl 'KIT-OWNED' "$kit/core" "$kit/setup" 2>/dev/null | sort); do
+# Read the list line by line rather than through word splitting: a path containing a space
+# would otherwise be torn into two nonexistent paths and silently skipped.
+grep -rl 'KIT-OWNED' "$kit/core" "$kit/setup" 2>/dev/null | sort > "$work_list"
+while IFS= read -r src; do
+  [ -n "$src" ] || continue
   case "$src" in
     "$kit/core/"*)  rel=${src#"$kit/core/"} ;;
     "$kit/setup/"*) rel="setup/${src#"$kit/setup/"}" ;;
@@ -73,7 +80,7 @@ for src in $(grep -rl 'KIT-OWNED' "$kit/core" "$kit/setup" 2>/dev/null | sort); 
   mkdir -p "$target/$(dirname "$rel")"
   cp "$src" "$target/$rel"
   case "$rel" in *.sh|.githooks/*) chmod +x "$target/$rel" ;; esac
-done
+done < "$work_list"
 [ "$found" -eq 1 ] || echo "  (none)"
 
 # --- tier 2: print what has to be applied by hand -----------------------------------

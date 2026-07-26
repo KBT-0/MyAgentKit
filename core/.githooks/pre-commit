@@ -1,7 +1,11 @@
 #!/usr/bin/env sh
 # KIT-OWNED: do not edit locally; change it in the kit and re-sync.
 # Runs the project gate before every commit, so passing it never depends on an agent (or a
-# human) remembering to. Same script CI runs — local PASS == CI PASS.
+# human) remembering to. CI runs the same script — one definition of "green".
+#
+# That is not a promise that local and CI always agree: same script, different machine.
+# A file mode, a missing tool or a locale can differ (docs/GOTCHAS.md). Check the pipeline
+# after pushing rather than inferring it from a local pass.
 #
 # Enable once per clone:  git config core.hooksPath .githooks   (docs/DEV_SETUP.md)
 # WIP escape hatch:       git commit --no-verify

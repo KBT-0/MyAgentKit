@@ -88,6 +88,30 @@ One topic per turn. Suggested order, because each answer informs the next:
    tests, anything slow enough to be opt-in.
 6. **People and tools.** Solo or a team? Which CLI agents and models, on what budget? Which
    is the scarce budget and which is the generous one? This fills the model-routing table.
+
+   Then ask specifically about **cross-model review**, because it is the one part of this
+   kit that needs software the owner may not have. `scripts/review.sh` shells out to a
+   SECOND CLI, and out of the box it targets the Codex CLI's interface. So:
+
+   - Check whether it is installed: `command -v codex`. Do not assume either way — report
+     what you found.
+   - If it is missing, explain the trade: without a second model, the review protocol
+     becomes the paste-the-template-by-hand version in `docs/REVIEW_GATE.md`. That is a
+     genuine fallback, and the kit works without it. With it, `/cross-review` runs the whole
+     thing in-session.
+   - **Offer to install it.** You can run the installer; the owner does the login. Say what
+     you are about to run before you run it, and do not install anything they did not agree
+     to — a new dependency needs their approval, which is a STOP rule in the constitution
+     you are installing.
+   - Mention the OPTIONAL vendor plugin for their host agent (for Claude Code and Codex:
+     `openai/codex-plugin-cc`). It is NOT needed by `scripts/review.sh`; it adds in-session
+     delegation and review commands. Installing it takes two slash commands that a HUMAN
+     must type — you cannot invoke slash commands. Give them the exact lines and say so
+     plainly rather than implying you handled it. `docs/DEV_SETUP.md` has both, including
+     the two cautions about model-invocable commands and automatic review gates.
+   - If they use a different reviewing CLI, record that `REVIEW_CLI_BIN` swaps the binary
+     but the invocation block in `scripts/review.sh` also needs editing for a different flag
+     interface. Do not leave them believing the env var alone is enough.
 7. **Does this project need a design document?** A game or a product with unsettled
    mechanics does. A CLI tool with an obvious scope does not — and a design document nobody
    reads is worse than none, because the constitution will keep pointing at it.

@@ -21,11 +21,12 @@ desktop.ini
 # Agent tooling
 ########################################
 # Working copies created by agent tools: full checkouts, never repository content.
+# Add your tools' own scratch directories here; an overlay may bring more.
 .claude/worktrees/
 
 # Local-only tool settings. Shared configuration is committed; per-machine overrides
 # and anything holding a credential are not.
-.claude/settings.local.json
+*/settings.local.json
 
 ########################################
 # Stack-specific rules

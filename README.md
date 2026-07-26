@@ -7,12 +7,13 @@ template you copy and outgrow — installation is a conversation with an agent, 
 project that uses it can push what it learned back into the kit.
 
 > **Status: v0.1 — extracted from a project in active use; not yet used to bootstrap a
-> second project.** `bootstrap.sh` is verified to produce a working skeleton in an empty
-> directory, and the gates are verified to fail when they should ([what was
-> tested](docs/ACCEPTANCE.md)). What has NOT happened yet is a real setup interview with a
-> real owner on a real second project, which is where the rough edges will be. Treat the
-> ecosystem-specific notes as unverified until the first research pass runs
-> (`RESEARCH_LOG.md`).
+> second project.** `bootstrap.sh` produces a working skeleton in an empty directory, and
+> each gate has a negative test that was observed making it fail. A cross-model review of
+> v0.1 returned **Reject** with seventeen findings — five of them fail-open paths in the
+> gates themselves — and they are fixed; the report is in
+> [docs/reviews](docs/reviews/). Read [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) for exactly
+> what was executed and what was not. No real setup interview has been run with a real
+> owner yet, and that is where the rough edges will be.
 
 Part of my `MyFramework` line of personal foundations — this is the AI-agent one.
 
@@ -52,7 +53,8 @@ None of that is fixed by a better prompt. It is fixed by structure.
 ```sh
 git clone https://github.com/KBT-0/MyAgentKit.git
 cd /path/to/your-project
-/path/to/MyAgentKit/bootstrap.sh .          # mechanical copy only
+/path/to/MyAgentKit/bootstrap.sh .                        # rules and gates
+/path/to/MyAgentKit/bootstrap.sh . --overlay claude-code  # + hooks and skills, if you use it
 ```
 
 Then open your CLI agent in the project and say:
@@ -72,11 +74,32 @@ answered by a script. Pass `--note "..."` to leave an agenda the interview must 
 | `setup/INTERVIEW.md` | The real entry point — a conversational setup an agent runs with you |
 | `setup/RESEARCH_PROTOCOL.md` | How the agent researches the current tooling ecosystem before advising you |
 | `core/` | The universal layer: constitution, workflow, review gate, handoff template, state file, gates, hooks |
-| `overlays/unity/` | Optional per-stack layer. Unity first; an overlay is added, never assumed |
+| `overlays/` | Optional layers, added and never assumed: `unity` for the engine, `claude-code` for that tool's hooks and skills |
 | `patterns/` | Optional reading — the reasoning behind specific hard-won designs. Not copied by default |
 | `docs/` | Long-form rationale: why each rule exists, and the failure mode it prevents |
 | `sync-kit.sh` | Propagate kit updates into a project that already installed it |
 | `RESEARCH_LOG.md` | Dated findings with verdicts — including rejections, so they are not re-litigated |
+
+## Tooling assumptions
+
+Two different claims live in this repository, and conflating them would be the kind of
+overclaiming it tells you to avoid.
+
+**The rules are tool-agnostic.** `AGENTS.md`, the workflow, the review protocol, the state
+file, `scripts/check.sh`, the git hook and CI make no assumption about which agent you run,
+or whether you run one at all. `docs/REVIEW_GATE.md` includes a paste-by-hand template so
+the review protocol works in a tool with no wrapper.
+
+**The shipped automation is not.** It was written for Claude Code as the host and the Codex
+CLI as the reviewer, because that is the pair the founding project used:
+
+- Claude Code's hooks, skills and subagent live in `overlays/claude-code/` — an overlay you
+  take deliberately, not part of the core.
+- `scripts/review.sh` targets the Codex CLI's flags. `REVIEW_CLI_BIN` swaps the binary, not
+  the contract; another reviewer needs its invocation block edited. The script says so.
+
+Using neither costs you the editor-side hooks and one command. Every rule and every gate
+still runs.
 
 ## How updates work
 

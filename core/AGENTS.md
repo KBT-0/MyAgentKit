@@ -1,8 +1,8 @@
 # {{PROJECT_NAME}} — Agent Constitution
 
 This is the FIRST file every agent — **any CLI tool, any model** — reads at the start of
-every session. It is short; every line is binding. (`CLAUDE.md` and any other tool-specific
-file are one-line pointers to this; AGENTS.md is canonical.)
+every session. It is short; every line is binding. Any tool-specific instruction file is a
+one-line pointer to this one; AGENTS.md is canonical.
 
 ## What this project is
 
@@ -21,8 +21,8 @@ file are one-line pointers to this; AGENTS.md is canonical.)
   tool cannot read them. `docs/STATE.md` is the ONLY cross-tool memory. If it matters
   tomorrow, it goes in STATE.md.
 - **Gates are tool-agnostic:** run `./scripts/check.sh` before finishing any task — CI runs
-  the same script, so local PASS == CI PASS. Anything under `.claude/` (or another tool's
-  config directory) is convenience for that one tool; the system works without it.
+  the same script. Anything under a single tool's config directory — its hooks, skills or
+  agent definitions — is convenience for that one tool; the system works without it.
 - **Cross-tool task transfer:** use the `docs/HANDOFF.md` template.
 
 ## Reading order (new session)

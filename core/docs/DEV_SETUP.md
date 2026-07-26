@@ -33,7 +33,70 @@ fails for a reason that has nothing to do with the code.
 
 If the gate fails with "command not found", that is this — not a broken build.
 
-## 3. Prove the gate actually works
+## 3. The second model — only if you want cross-model review
+
+`docs/REVIEW_GATE.md` asks for risky diffs to be reviewed by a DIFFERENT model in a fresh
+session. `scripts/review.sh` automates that, and it needs a second CLI on this machine.
+
+**Ask your agent to set this up for you.** It can install the CLI and check the wiring; the
+parts it cannot do are called out below. Nothing here is required to write code — the gate,
+the hooks and CI all work without it. Skip it and the review protocol becomes the
+paste-the-template-by-hand version in `docs/REVIEW_GATE.md`, which is a real fallback, not a
+consolation prize.
+
+**Required: the reviewing CLI itself.**
+
+`scripts/review.sh` shells out to it directly. Out of the box the script targets the Codex
+CLI's interface (`codex exec -s read-only …`), so:
+
+```sh
+command -v codex          # already there?
+```
+
+If not, install it and log in. An agent can run the installer for you. Point the script
+somewhere else with `REVIEW_CLI_BIN`, but note that only swaps the BINARY — a CLI with a
+different flag interface also needs the invocation block in `scripts/review.sh` edited. The
+script is deliberately honest about this rather than pretending to be vendor-neutral.
+
+Verify it end to end before trusting it — one real invocation, on a small diff:
+
+```sh
+./scripts/review.sh --uncommitted
+```
+
+A stub or a dry run does not count. A wrapper validated only against a fake CLI is a wrapper
+that has never met the real contract (`docs/GOTCHAS.md`).
+
+**Optional: the vendor plugin for your host agent.**
+
+Separate from the above, and NOT needed by `scripts/review.sh`. If your host agent has an
+official plugin for the reviewing tool, it adds in-session commands — delegate a task,
+review, check job status — without the copy-paste loop. For Claude Code and Codex that is
+`openai/codex-plugin-cc`, installed with two slash commands **a human has to type** (an
+agent cannot invoke slash commands):
+
+```
+/plugin marketplace add openai/codex-plugin-cc
+/plugin install codex@openai-codex
+```
+
+An agent can prepare the configuration for you and tell you what to type; the typing and the
+restart are yours.
+
+Two cautions if you install it:
+
+- **Check which of its commands a MODEL can invoke.** If any are model-invocable, a session
+  can spend the other tool's budget without you deciding to. Write the project rule down:
+  no session calls the second tool unless you asked for it in that session.
+- **Leave any automatic review gate OFF.** The tempting setting makes the second model
+  review every turn and block until fixes are applied. Unattended agent-to-agent loops burn
+  a budget fast. All review here is manually triggered — record that decision so nobody
+  turns it on later as a convenience.
+
+Tool names, install commands and flags all rot. `setup/RESEARCH_PROTOCOL.md` is what keeps
+this section current; if it disagrees with reality, reality wins and this file is wrong.
+
+## 4. Prove the gate actually works
 
 Once, on a fresh clone:
 

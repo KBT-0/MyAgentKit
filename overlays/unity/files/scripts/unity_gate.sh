@@ -57,15 +57,41 @@ run_gate() {
       }
 
     # A gate must not pass on ABSENT evidence. Unity exits 0 for a run that executed
-    # nothing, so the results file has to exist and its cases have to be counted.
+    # nothing, so the results file has to exist, be real, and be counted properly.
     if [ ! -f "$results" ]; then
       echo "FAIL [unity]: $platform produced no results file at $results — the run proved nothing."
       fail=1
-    else
-      n=$(grep -c "<test-case " "$results" 2>/dev/null || echo 0)
-      echo "unity: $platform executed $n test(s)."
-      cases=$((cases + n))
+      continue
     fi
+
+    # It must actually look like an NUnit result document. A stub that writes any file
+    # containing the substring we count would otherwise satisfy this gate without running
+    # a single test.
+    if ! grep -q "<test-run\|<test-results" "$results"; then
+      echo "FAIL [unity]: $results is not an NUnit result document. Refusing to count it."
+      fail=1
+      continue
+    fi
+
+    # `grep -c` prints 0 AND returns 1 when nothing matches, so a `|| echo 0` fallback
+    # appends a SECOND zero and the arithmetic below dies with "Illegal number" — before
+    # ever reaching the zero-test diagnostic. Take the count and validate it instead.
+    total=$(grep -c "<test-case " "$results" 2>/dev/null)
+    skipped=$(grep -o 'result="Skipped"' "$results" 2>/dev/null | grep -c .)
+    failed=$(grep -o 'result="Failed"' "$results" 2>/dev/null | grep -c .)
+    case "$total$skipped$failed" in
+      *[!0-9]*|"") echo "FAIL [unity]: could not count test cases in $results."; fail=1; continue ;;
+    esac
+    executed=$((total - skipped))
+    echo "unity: $platform — $total case(s), $skipped skipped, $failed failed, $executed executed."
+
+    # Skipped is not executed. An all-skipped run is the absent-evidence case wearing a
+    # results file, and it is what a misconfigured test assembly produces.
+    if [ "$failed" -gt 0 ]; then
+      echo "FAIL [unity]: $platform reports $failed failed test(s) — see $results"
+      fail=1
+    fi
+    cases=$((cases + executed))
   done
 
   # Zero tests on ONE platform is normal early on. Zero across BOTH means the tests stopped
@@ -83,28 +109,62 @@ run_gate() {
 # and produced nothing", which is how this gate silently passed for weeks once. That case
 # needs no Unity install to reproduce: a stub that exits 0 and writes no results file.
 self_test() {
-  stub=$(mktemp -d)/unity
-  printf '#!/bin/sh\nexit 0\n' > "$stub"
-  chmod +x "$stub"
+  st_fail=0
+  d=$(mktemp -d)
 
-  out=$(UNITY_PATH="$stub" UNITY_PROJECT="$project_dir" sh "$0" 2>&1)
-  status=$?
-  rm -rf "$(dirname "$stub")"
+  # case: a run that exits clean and writes nothing at all.
+  make_stub() { printf '%s\n' '#!/bin/sh' "$2" > "$1"; chmod +x "$1"; }
+  probe() {
+    label="$1"; want="$2"; stub="$3"
+    out=$(UNITY_PATH="$stub" UNITY_PROJECT="$project_dir" sh "$0" 2>&1)
+    if [ $? -eq 0 ]; then
+      echo "  FAIL — $label: the gate PASSED."
+      st_fail=1
+      return
+    fi
+    case "$out" in
+      *"$want"*) echo "  ok   — $label" ;;
+      *) echo "  FAIL — $label: it failed, but not for the expected reason ($want):"
+         printf '%s\n' "$out" | tail -4 | sed 's/^/         /'
+         st_fail=1 ;;
+    esac
+  }
 
-  if [ "$status" -eq 0 ]; then
-    echo "SELF-TEST: FAIL — the gate passed a run that executed nothing and wrote no results."
-    echo "$out" | tail -5
-    return 1
-  fi
-  case "$out" in
-    *"no results file"*|*"no test executed"*)
-      echo "SELF-TEST: PASS — the gate rejects a successful-looking run with no evidence."
-      return 0 ;;
-    *)
-      echo "SELF-TEST: FAIL — the gate failed, but not for the absent-evidence reason:"
-      echo "$out" | tail -5
-      return 1 ;;
+  make_stub "$d/silent" 'exit 0'
+  probe "rejects a clean exit that wrote no results file" "no results file" "$d/silent"
+
+  # case: a file exists but is not an NUnit document — the shape a naive substring count
+  # would happily accept.
+  cat > "$d/fake" <<'STUB'
+#!/bin/sh
+for a in "$@"; do case "$prev" in -testResults) printf '<test-case />\n' > "$a";; esac; prev="$a"; done
+exit 0
+STUB
+  chmod +x "$d/fake"
+  probe "rejects a results file that is not an NUnit document" "not an NUnit result document" "$d/fake"
+
+  # case: a well-formed document in which every test was SKIPPED. Skipped is not executed,
+  # and this is what a misconfigured test assembly actually produces.
+  cat > "$d/skipped" <<'STUB'
+#!/bin/sh
+for a in "$@"; do
+  case "$prev" in
+    -testResults) printf '<test-run><test-case name="a" result="Skipped" /></test-run>\n' > "$a";;
   esac
+  prev="$a"
+done
+exit 0
+STUB
+  chmod +x "$d/skipped"
+  probe "rejects a run in which every test was skipped" "no test executed" "$d/skipped"
+
+  rm -rf "$d"
+  if [ "$st_fail" -eq 0 ]; then
+    echo "SELF-TEST: PASS — the gate rejects each successful-looking run with no real evidence."
+    return 0
+  fi
+  echo "SELF-TEST: FAIL — the gate accepts a run that proved nothing."
+  return 1
 }
 
 case "${1:-}" in

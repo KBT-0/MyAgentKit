@@ -43,8 +43,10 @@ public API, its own tests. Modules see each other ONLY through public contracts.
 
 ## Boundary enforcement (rule ≠ advice)
 
-Every boundary below is enforced by something that fails a build. A boundary enforced only
-by prose is a request, and requests decay.
+For each boundary below, state WHAT enforces it — and write "not enforced" where nothing
+does. A boundary enforced only by prose is a request, and requests decay; the point of this
+section is to make that distinction visible rather than to imply it away. An honest gap gets
+closed. A gap everyone assumes is covered does not.
 
 {{BOUNDARY_ENFORCEMENT}}
 

@@ -3,7 +3,7 @@
 # /{{MODULE}} rules
 
 <!-- Copy this to each top-level module folder as its AGENTS.md, alongside a two-line
-     CLAUDE.md pointer. Keep it under ~25 lines: it is read whenever an agent works here,
+     pointer file for whichever tools you use. Keep it under ~25 lines: it is read
      on top of the root constitution, and it must not repeat the root's rules.
 
      Write only what is TRUE HERE AND NOWHERE ELSE. A rule that applies project-wide

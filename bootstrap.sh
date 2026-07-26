@@ -118,6 +118,27 @@ if [ -s "$skiplist" ]; then
   echo "           Merge by hand, or re-run with --force to overwrite."
 fi
 
+# A retrofit that skipped the ENFORCEMENT files installed no enforcement, and saying so in
+# a list the reader skims is not enough: the installer would report success while the
+# repository's existing (possibly no-op) gate stays in place. That is the fail-open shape
+# this kit exists to prevent, so it is a hard stop rather than a note.
+if grep -qE '^(scripts/check\.sh|\.githooks/pre-commit)$' "$skiplist" 2>/dev/null; then
+  cat <<'EOF'
+
+STOPPING: the gate files already existed and were NOT replaced.
+
+  scripts/check.sh and .githooks/pre-commit are the enforcement. Whatever is in this
+  repository now is what will run — and if it is a no-op, this install just gave you the
+  paperwork of a gate with none of the gate.
+
+  Decide deliberately, then re-run:
+    - keep yours:      merge the kit's checks into your script by hand (docs/RETROFIT.md)
+    - take the kit's:  re-run with --force, then re-add your own checks
+  Either way, finish with:  ./scripts/check.sh --self-test
+EOF
+  exit 1
+fi
+
 cat <<'EOF'
 
 Foundation copied. Now open your CLI agent here and say:
