@@ -14,9 +14,8 @@ WHY an entry exists belongs in `RESEARCH_LOG.md`; this file records WHAT changed
 ## v0.1 — 2026-07-26
 
 First extraction. The kit's Layer 1 (universal core), the Unity overlay and the optional
-patterns were taken from `project_leeway`, a Unity + .NET multiplayer project written
-almost entirely by CLI agents. Nothing here was designed in the abstract; every rule was
-paid for by that project.
+patterns were taken from a Unity + .NET multiplayer codebase written almost entirely by CLI
+agents. Nothing here was designed in the abstract; every rule was paid for by real work.
 
 Founding content, with the failure each rule prevents recorded in `RESEARCH_LOG.md`
 (Backflow findings, 2026-07-26):

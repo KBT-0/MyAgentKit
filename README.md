@@ -6,15 +6,13 @@ than requested**, memory that survives across tools and sessions, and a setup th
 template you copy and outgrow — installation is a conversation with an agent, and every
 project that uses it can push what it learned back into the kit.
 
-> **Status: v0.1 — extracted from a project in active use; not yet used to bootstrap a
-> second project.** `bootstrap.sh` produces a working skeleton in an empty directory, and
-> each gate has a negative test that was observed making it fail. v0.1 was reviewed by two
-> other models and **both returned Reject** — seventeen findings, then eleven more against
-> the first round's fixes, because the fix for a fail-open scanner was itself fail-open. All
-> are fixed and the reports are in [docs/reviews](docs/reviews/). Read
-> [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) for exactly what was executed and what was not.
-> No real setup interview has been run with a real owner yet, and that is where the rough
-> edges will be.
+> **Status: v0.1 — extracted from a codebase in active use.** `bootstrap.sh` produces a
+> working skeleton in an empty directory, and each gate has a negative test that was
+> observed making it fail. v0.1 was reviewed by two other models and **both returned
+> Reject** — seventeen findings, then eleven more against the first round's fixes, because
+> the fix for a fail-open scanner was itself fail-open. All are fixed and the reports are in
+> [docs/reviews](docs/reviews/). Read [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) for exactly
+> what was executed and what was not.
 
 Part of my `MyFramework` line of personal foundations — this is the AI-agent one.
 
@@ -75,7 +73,7 @@ answered by a script. Pass `--note "..."` to leave an agenda the interview must 
 | `setup/INTERVIEW.md` | The real entry point — a conversational setup an agent runs with you |
 | `setup/RESEARCH_PROTOCOL.md` | How the agent researches the current tooling ecosystem before advising you |
 | `core/` | The universal layer: constitution, workflow, review gate, handoff template, state file, gates, hooks |
-| `overlays/` | Optional layers, added and never assumed: `unity` for the engine, `claude-code` for that tool's hooks and skills |
+| `overlays/` | Optional layers, added and never assumed: `unity` for the engine (assembly layout, the batchmode test gate, and a default MCP server — CoplayDev's tool-agnostic `MCP for Unity` — with the scoping traps that cost real time to find), `claude-code` for that tool's hooks and skills |
 | `patterns/` | Optional reading — the reasoning behind specific hard-won designs. Not copied by default |
 | `docs/` | Long-form rationale: why each rule exists, and the failure mode it prevents |
 | `sync-kit.sh` | Propagate kit updates into a project that already installed it |
@@ -117,10 +115,10 @@ here?* If yes, the kit changes first, then the project syncs. That is why
 
 ## Where this came from
 
-Extracted from `project_leeway`, a Unity + .NET multiplayer game written almost entirely by
-CLI agents over roughly two months. Nothing here was designed in the abstract: every rule
-is in the kit because something broke without it. The five founding lessons — including
-three gates that reported PASS while protecting nothing — are written up in
-`RESEARCH_LOG.md` with the failure each one prevents.
+This is the accumulated result of about a year of building with CLI agents, mostly on Unity
+and .NET codebases — the practices that survived, pulled out of the projects that paid for
+them. Nothing here was designed in the abstract: every rule is in the kit because something
+broke without it. The founding lessons — including three gates that reported PASS while
+protecting nothing — are written up in `RESEARCH_LOG.md` with the failure each one prevents.
 
 MIT licensed.

@@ -36,12 +36,11 @@ _(none yet — the first entries arrive with the first research pass)_
 
 ## Backflow findings
 
-### 2026-07-26 — from `project_leeway` (the project this kit was extracted from)
+### 2026-07-26 — from the founding project (the codebase this kit was extracted from)
 
-`project_leeway` is a Unity + .NET multiplayer game written almost entirely by CLI agents
-(Claude Code and Codex) over roughly two months. The findings below are what it paid for
-in real budget and real broken gates. They are the kit's founding content, not later
-additions.
+A Unity + .NET multiplayer game written almost entirely by CLI agents (Claude Code and
+Codex). The findings below are what it paid for in real budget and real broken gates. They
+are the kit's founding content, not later additions.
 
 #### 1. Gates tend to fail OPEN, and a fail-open gate is worse than no gate — ACCEPTED
 

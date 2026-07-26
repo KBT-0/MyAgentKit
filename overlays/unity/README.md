@@ -8,7 +8,7 @@ Install with `bootstrap.sh . --overlay unity`. This README is NOT copied — onl
 |---|---|
 | `unity/AGENTS.md` | Folder rules: the four access tiers, the concurrency rule, commit hygiene, thin scenes |
 | `unity/CLAUDE.md` | Pointer |
-| `docs/UNITY_SETUP.md` | Assembly layout, consuming a pure core from Unity, VCS settings, MCP scope |
+| `docs/UNITY_SETUP.md` | Assembly layout, consuming a pure core from Unity, VCS settings, and the MCP server: which one, how to pin it, and how to scope what an agent may drive |
 | `scripts/unity_gate.sh` | The Unity Test Framework gate, batchmode, with its evidence checks |
 | `docs/kit/unity.gitignore-fragment` | `.gitignore` rules to append by hand |
 
@@ -30,6 +30,20 @@ require editing a project-owned file. Ordinary work is unaffected by an overlay 
 2. **Add the boundary check.** The networking library confinement (only the adapter assembly
    may import it) belongs in `scripts/boundary_checks.sh`, with its negative test in
    `scripts/boundary_selftests.sh`. `docs/UNITY_SETUP.md` gives both, ready to paste.
+
+## The MCP server it defaults to
+
+`docs/UNITY_SETUP.md` names one — CoplayDev's [`MCP for Unity`](https://github.com/CoplayDev/unity-mcp)
+(MIT) — because "choose an MCP server" is a research task with a wrong answer, and a default
+you can override beats an empty decision. It is tool-agnostic, which matters more than any
+feature: it configures whichever MCP clients it detects instead of binding the project to
+one vendor's cloud account.
+
+Two things in there are worth reading even if you pick a different server, because both cost
+real time to discover: the always-on tool group contains destructive operations the group
+labels do not suggest, and **a per-tool deny list in the MCP client is bypassable** — scope
+has to be enforced in the editor's own tools window. MCP is also never a gate: it needs a
+live editor, so it cannot run in CI.
 
 ## What this overlay assumes
 

@@ -101,14 +101,32 @@ reference.
 ## 4. MCP — how agents reach the editor
 
 Agents drive the editor through an MCP server (the access tiers are in `unity/AGENTS.md`).
-Which server is a decision for {{OWNER_NAME}}; the notes below are what one project learned
-using CoplayDev's `MCP for Unity` (MIT), and they generalise.
+The server is ultimately {{OWNER_NAME}}'s call, but this overlay ships a default rather than
+an empty decision, because "pick an MCP server" is a research task with a wrong answer:
 
-**Pin a release tag, never a moving branch.** Bumping the pin is a deliberate task, not a
-side effect of someone reinstalling.
+**Default: CoplayDev's [`MCP for Unity`](https://github.com/CoplayDev/unity-mcp) (MIT).**
+It is tool-agnostic — it configures whichever MCP clients it detects, so it is not tied to
+one vendor's cloud account or one editor. That property matters more than the feature list:
+a server bound to a single vendor adds a service dependency you do not control on top of a
+beta you cannot pin.
 
-**Prefer a server that works with every tool you use.** A server tied to one vendor's cloud
-account adds a service dependency you do not control, on top of a beta you cannot pin.
+```
+Unity → Package Manager → Add package from git URL:
+  https://github.com/CoplayDev/unity-mcp.git?path=/MCPForUnity#<release-tag>
+then: Window → MCP for Unity → Configure All Detected Clients
+```
+
+Needs Python 3.10+ (via `uv`) on the machine.
+
+**Pin a release tag, never `#main`.** A moving dependency breaks the project silently and
+at the worst moment; bumping the pin is a deliberate task, not a side effect of someone
+reinstalling. Check the tag list and take the newest release rather than copying a version
+out of this document — the pin below is not maintained here, and a stale one is worse than
+no suggestion.
+
+**Verify the catalogue against the version you actually installed.** Everything in the next
+section was walked against an installed copy's `Editor/Tools/` source, not against its
+documentation. Do the same after any bump: the tool groups are where the surprises live.
 
 ### Scope: decide it, then enforce it in the right place
 
