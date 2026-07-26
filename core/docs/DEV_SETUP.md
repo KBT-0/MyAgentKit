@@ -70,10 +70,19 @@ that has never met the real contract (`docs/GOTCHAS.md`).
 **Optional: the vendor plugin for your host agent.**
 
 Separate from the above, and NOT needed by `scripts/review.sh`. If your host agent has an
-official plugin for the reviewing tool, it adds in-session commands — delegate a task,
-review, check job status — without the copy-paste loop. For Claude Code and Codex that is
-`openai/codex-plugin-cc`, installed with two slash commands **a human has to type** (an
-agent cannot invoke slash commands):
+official plugin for the reviewing tool, it adds in-session commands without the copy-paste
+loop. For Claude Code and Codex that is `openai/codex-plugin-cc`, which contributes:
+
+- `/codex:review` — a Codex review against local git state.
+- `/codex:adversarial-review` — a review that challenges the design, the tradeoffs and the
+  assumptions rather than hunting implementation defects. Worth knowing separately: it asks
+  a different question from the one `scripts/review.sh` asks, so it complements the gate
+  instead of duplicating it.
+- `/codex:rescue` — hand an investigation, or a fix you are stuck on, to a Codex subagent.
+- `/codex:transfer` — move the whole session into a resumable Codex thread.
+
+Installed with two slash commands **a human has to type** (an agent cannot invoke slash
+commands):
 
 ```
 /plugin marketplace add openai/codex-plugin-cc

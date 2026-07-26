@@ -53,12 +53,17 @@ None of that is fixed by a better prompt. It is fixed by structure.
 git clone https://github.com/KBT-0/MyAgentKit.git
 cd /path/to/your-project
 /path/to/MyAgentKit/bootstrap.sh .                        # rules and gates
-/path/to/MyAgentKit/bootstrap.sh . --overlay claude-code  # + hooks and skills, if you use it
+/path/to/MyAgentKit/bootstrap.sh . --overlay claude-code  # + hooks and skills (recommended)
+/path/to/MyAgentKit/bootstrap.sh . --overlay unity        # + engine layer, if it applies
 ```
 
 Then open your CLI agent in the project and say:
 
 > Read `setup/INTERVIEW.md` and start the setup.
+
+For the review gate you also want a SECOND model on the machine — see
+[Recommended setup](#recommended-setup-claude-code-as-the-host-codex-as-the-second-opinion).
+The setup interview will ask, and can install it for you.
 
 `bootstrap.sh` copies files and configures git hooks. It does not ask you anything and it
 does not fill anything in — that is the interview's job, because the decisions it needs
@@ -79,18 +84,47 @@ answered by a script. Pass `--note "..."` to leave an agenda the interview must 
 | `sync-kit.sh` | Propagate kit updates into a project that already installed it |
 | `RESEARCH_LOG.md` | Dated findings with verdicts — including rejections, so they are not re-litigated |
 
-## Tooling assumptions
+## Recommended setup: Claude Code as the host, Codex as the second opinion
+
+The kit's central review rule is that **the author of a change never reviews it**, and that
+the value of a second opinion is that it is *decorrelated* — a different model, not the same
+one asked twice. That needs two CLIs. The pairing below is the one this was built and used
+on, and it is a recommendation rather than a requirement:
+
+**Run Claude Code as your main agent.** `overlays/claude-code/` gives it the editor-side
+hooks (a boundary guard on every edit, the gate on every turn end), the `/handoff` and
+`/cross-review` skills, and a read-only review subagent.
+
+**Add the Codex CLI as the reviewer.** Two independent paths, and you can take either or
+both:
+
+- **`scripts/review.sh`** — the kit's own wrapper. Needs only the `codex` binary, no plugin.
+  It pins the sandbox to read-only, carries `REVIEW_GATE.md`'s priority order, and archives
+  every report under `docs/reviews/` as evidence. This is the one the gate refers to.
+- **OpenAI's `codex` plugin for Claude Code** (`/plugin install codex@openai-codex`) — a
+  nicer in-session path to the same second model. It adds `/codex:review`,
+  `/codex:adversarial-review` (challenges the design, not just the defects), `/codex:rescue`
+  for delegating an investigation or a stuck fix to a Codex subagent, and `/codex:transfer`
+  to hand the whole session over to a resumable Codex thread.
+
+**Why this direction and not the reverse.** The integrations are asymmetric: OpenAI ships a
+Codex plugin that runs inside Claude Code, and there is no equivalent Anthropic-published
+plugin for Codex — its curated marketplace carries no Claude entry. So the host that can
+reach the other model in-session is Claude Code, and that is the only reason it is the
+recommended host here. Running it the other way works, it just costs you the ergonomics:
+Codex reads `AGENTS.md` natively, and `docs/REVIEW_GATE.md` has a paste-by-hand template for
+exactly that case.
+
+## What is a recommendation, and what is a requirement
 
 Two different claims live in this repository, and conflating them would be the kind of
 overclaiming it tells you to avoid.
 
 **The rules are tool-agnostic.** `AGENTS.md`, the workflow, the review protocol, the state
 file, `scripts/check.sh`, the git hook and CI make no assumption about which agent you run,
-or whether you run one at all. `docs/REVIEW_GATE.md` includes a paste-by-hand template so
-the review protocol works in a tool with no wrapper.
+or whether you run one at all.
 
-**The shipped automation is not.** It was written for Claude Code as the host and the Codex
-CLI as the reviewer, because that is the pair the founding project used:
+**The shipped automation is not.** It was written for the pair above:
 
 - Claude Code's hooks, skills and subagent live in `overlays/claude-code/` — an overlay you
   take deliberately, not part of the core.
