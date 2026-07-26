@@ -1,0 +1,39 @@
+# {{PROJECT_NAME}} — repository root .gitignore
+#
+# READ THIS BEFORE EDITING: git applies the LAST matching rule. A broad pattern written
+# after a re-include silently re-ignores the files you just rescued, and the file reads
+# top-to-bottom while behaving bottom-to-top. Any re-include block therefore stays at the
+# very END of this file. Verify a specific path with `git check-ignore -v <path>`, which
+# names the winning rule and its line number, instead of reading and guessing.
+# (docs/GOTCHAS.md)
+
+########################################
+# OS / editor noise
+########################################
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+.idea/
+.vs/
+
+########################################
+# Agent tooling
+########################################
+# Working copies created by agent tools: full checkouts, never repository content.
+.claude/worktrees/
+
+# Local-only tool settings. Shared configuration is committed; per-machine overrides
+# and anything holding a credential are not.
+.claude/settings.local.json
+
+########################################
+# Stack-specific rules
+########################################
+# {{STACK_IGNORE_RULES}}
+
+########################################
+# Re-includes — MUST STAY LAST (git applies the last matching rule)
+########################################
+# Hand-written project files that a broad pattern above would otherwise swallow go here,
+# and nowhere else.

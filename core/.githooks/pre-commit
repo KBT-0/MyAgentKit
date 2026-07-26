@@ -1,0 +1,23 @@
+#!/usr/bin/env sh
+# Runs the project gate before every commit, so passing it never depends on an agent (or a
+# human) remembering to. Same script CI runs — local PASS == CI PASS.
+#
+# Enable once per clone:  git config core.hooksPath .githooks   (docs/DEV_SETUP.md)
+# WIP escape hatch:       git commit --no-verify
+#   That hatch belongs to the owner. Agents must NOT use it (AGENTS.md).
+#
+# A gate wired into git is the only kind that survives: one that depends on discipline
+# erodes the first time someone is in a hurry.
+set -u
+
+root=$(git rev-parse --show-toplevel) || exit 1
+cd "$root" || exit 1
+
+# Fast gate only. --self-test invokes the whole gate several times and belongs in the
+# periodic audit, not in every commit.
+if ./scripts/check.sh; then
+  exit 0
+fi
+
+echo "pre-commit: check.sh FAILED — commit aborted. Fix it, or use --no-verify for a WIP commit." >&2
+exit 1

@@ -1,0 +1,65 @@
+# Task Handoff Template — Tool-Agnostic (CANONICAL)
+
+When handing work to another tool, model or session, produce ONE self-contained prompt. The
+target has NO chat memory: if it is not in the prompt or in `docs/STATE.md`, it does not
+exist. Write full, explicit sentences — terse-output style rules do not apply to this file
+or to anything produced from it.
+
+## The brief
+
+1. **Task:** one paragraph, exact scope, explicit non-goals ("do not touch X").
+2. **Files:** full paths and member names — verified to exist RIGHT NOW with grep or a
+   read, never from memory. A path that has moved sends the implementer somewhere else and
+   the diff comes back in the wrong place.
+3. **Constraints:** restate the relevant `AGENTS.md` rules verbatim — the one-module rule,
+   the boundary that applies here, no untested core code, no drive-by refactors. Do not
+   write "follow AGENTS.md"; the target will not weigh a pointer the same as a quoted rule.
+4. **Acceptance:** what the diff must and must NOT contain, and which gate follows (a risky
+   area means `docs/REVIEW_GATE.md`, fresh session).
+5. **Routing check:** does this task belong on the model it is being sent to? Judgement work
+   — architecture, contracts, risky diffs — goes to the strongest model; bulk, mechanical,
+   well-specified work goes to the cheaper one. If the requested route violates that, say so
+   instead of producing the prompt.
+6. **Definition of Done — verifiable:** the exact command or observation that proves the
+   task is finished, e.g. "`./scripts/check.sh` prints `CHECK: PASS` with the new test
+   visible in the run". Not "it works", not "tests added" — something the implementer can
+   run and {{OWNER_NAME}} can re-run. If a stated check could not be executed, the
+   implementer reports "not run". It is never assumed.
+7. **If ambiguous: STOP and ask.** Do not assume, do not invent scope, do not widen the task
+   to make an unclear part fit. An unanswered question comes back as a question, not as a
+   guess buried in the diff.
+
+End the prompt with: updating `docs/STATE.md` at session end is the implementer's job.
+
+## Sizing the task before you write the brief
+
+- **Too big** ("build the payments system") — the implementer invents scope and returns one
+  monolithic, untestable file. Split it first.
+- **Too small** ("write an add function") — the context switch costs more than the work
+  saves. Fold it into the neighbouring task.
+- **Right size** — ONE named piece, in ONE module, built on contracts that already exist,
+  with a Definition of Done someone else can run.
+
+The loop is **specify → generate → validate.** Interfaces, data shapes and constraints are
+specified BEFORE generation, and the result is validated by a gate, never by the
+implementer's self-report.
+
+## Day-to-day task prompt
+
+The full brief above is for handing work across tools. For an ordinary task inside one
+session, the same skeleton compressed:
+
+```
+Read: AGENTS.md, docs/STATE.md, docs/ARCHITECTURE.md, <target folder>/AGENTS.md
+
+TASK:   <one sentence — one module>
+SCOPE:  <the files you may touch>
+DO NOT: <explicit non-goals>
+VERIFY: ./scripts/check.sh — never report a check you did not run
+DONE:   <the command or observation that proves it>
+
+If this task touches {{RISKY_AREAS}}, or any gate/CI/check script: before commit, run the
+review gate per docs/REVIEW_GATE.md in a FRESH session, preferably a different tool.
+
+When finishing: update docs/STATE.md with a tool+model trace, then a short summary.
+```

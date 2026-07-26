@@ -1,0 +1,61 @@
+# GOTCHAS — environment and tooling traps
+
+**Not a session-start file.** It is referenced from `AGENTS.md` in one line and read when
+something behaves unexpectedly — or before you spend an hour on a problem this project has
+already paid for once. Keeping it off the every-session reading list is deliberate: it can
+grow without costing anything per session.
+
+Each entry: what happened, why it matters, what to do. Add one when a trap costs real time.
+Delete one when the cause is gone for good — not when it merely feels old.
+
+This is one of the permanent homes a `[GOTCHA]` line in `docs/STATE.md` gets moved into
+before that line is deleted.
+
+---
+
+The four entries below ship with the kit. They are not hypothetical: each cost a real day
+somewhere, and none of them depends on a particular language or stack.
+
+## `.gitignore` — the LAST matching rule wins
+
+Git applies the last pattern that matches, so a broad rule written *after* a re-include
+silently re-ignores the files you just rescued. This is easy to get backwards, because the
+file reads top-to-bottom like a list of exceptions and behaves bottom-to-top.
+
+Keep any re-include block at the very END of `.gitignore` and mark it as such. Never verify
+by reading the file and reasoning about it: run `git check-ignore -v <path>`, which names
+the winning rule and its line number.
+
+## The executable bit has to be put in the git index by hand
+
+On filesystems where `core.filemode` is `false` — Windows mounts, some network shares — git
+never notices a `chmod`. The mode recorded in the index is whatever was written when the
+file was first added, and files added from such a mount land as `100644`. The script runs
+fine locally and CI dies on it with `Permission denied`, exit 126.
+
+That exact failure kept a CI pipeline red for weeks in this kit's founding project, because
+a local `CHECK: PASS` was mistaken for evidence about CI. Anyone adding a script runs
+`git update-index --chmod=+x <path>`, confirms with `git ls-files -s`, and checks the
+pipeline after pushing rather than assuming.
+
+## A fake-CLI test harness cannot catch what the real CLI rejects
+
+A wrapper script was fully proven against a stub binary that recorded its arguments — and
+the first REAL run failed instantly, because the actual CLI accepts either a scope flag or
+custom instructions, never both.
+
+A stub validates YOUR argument handling. Only a live run validates the CONTRACT. Budget one
+real invocation before declaring any CLI wrapper done, and say "not run" until you have
+spent it.
+
+## A tool's relative output path resolves against ITS working directory, not yours
+
+A test runner was told to write results to a relative path. It resolved that path against
+the project directory it had been handed rather than the calling shell's, so the file
+landed somewhere nobody looked. The runner still exited 0, and a gate that checked only the
+exit code reported PASS for a run that had executed nothing.
+
+Pass absolute paths to any tool you will read output back from, and make the gate **fail
+when the evidence is absent** — no results file is a FAIL, not a pass. An exit code is not
+evidence that work was done. (`scripts/check.sh` carries this rule and a negative test for
+it.)
