@@ -18,8 +18,11 @@ set -u
 root=$(git rev-parse --show-toplevel) || exit 1
 cd "$root" || exit 1
 
-# Fast gate only. --self-test invokes the whole gate several times and belongs in the
-# periodic audit, not in every commit.
+# Fast gate only, deliberately with no flags. Everything slow stays out of the commit path:
+# --self-test invokes the whole gate a dozen times, and a project's opt-in gates (an engine
+# running in batchmode, an integration suite) cost minutes and sometimes need a live install.
+# Those belong in the periodic audit or in CI. A commit hook people start bypassing is worse
+# than no commit hook at all, and slowness is what makes them start.
 if ./scripts/check.sh; then
   exit 0
 fi
