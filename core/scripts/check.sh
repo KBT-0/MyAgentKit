@@ -19,11 +19,15 @@ fail=0
 # mutating the real one. Nothing else sets it.
 STATE_FILE="${STATE_FILE:-docs/STATE.md}"
 
-# Toolchains are commonly installed per-user and are then missing from the PATH of git
-# hooks and other non-login shells; without this the gate fails for the wrong reason.
-# Replace this line at setup, e.g.:
-#   [ -x "$HOME/.dotnet/dotnet" ] && { PATH="$HOME/.dotnet:$PATH"; export PATH; }
-# {{TOOLCHAIN_PATH_SETUP}}
+# Toolchains are commonly installed per-user and then missing from the PATH of git hooks
+# and other non-login shells; without this the gate fails for the wrong reason. A VALUE,
+# not a line of code — see the note above section 3 about why that distinction matters.
+# Example: "$HOME/.dotnet". Leave empty if nothing extra is needed.
+toolchain_path="{{TOOLCHAIN_PATH_SETUP}}"
+case "$toolchain_path" in
+  ""|*"{{"*) ;;
+  *) PATH="$toolchain_path:$PATH"; export PATH ;;
+esac
 
 # Files worth scanning: tracked plus untracked-but-not-ignored. Falls back to find when
 # this is not a git repository yet (a freshly bootstrapped directory, for instance).
@@ -107,13 +111,10 @@ self_test() {
   fi
 
   # --- project boundary self-tests ------------------------------------------
-  # One case per check added to section 3 below. Inject the violation, assert the gate
-  # rejects it, remove it. Example:
-  #   mkdir -p core && printf 'using UnityEngine;\n' > core/.selftest.cs
-  #   sh "$0" >/dev/null 2>&1 && { echo "  FAIL — engine import gate"; st_fail=1; } \
-  #     || echo "  ok   — engine import gate rejects a forbidden import"
-  #   rm -f core/.selftest.cs
-  # {{BOUNDARY_SELF_TESTS}}
+  # One case per check in scripts/boundary_checks.sh. Sourced, so it can set st_fail.
+  if [ -f scripts/boundary_selftests.sh ]; then
+    . ./scripts/boundary_selftests.sh
+  fi
 
   if [ "$st_fail" -eq 0 ]; then
     echo "SELF-TEST: PASS — every gate above was observed rejecting its failure case."
@@ -175,18 +176,17 @@ fi
 # ---------------------------------------------------------------------------
 # 3) PROJECT BOUNDARY CHECKS
 # ---------------------------------------------------------------------------
-# Filled in by setup/INTERVIEW.md from the boundaries the owner named. Each is one grep
-# that FAILS the build, because a boundary nothing enforces is a request, not a rule.
+# The checks live in their OWN FILE, sourced here, and that is deliberate. An earlier
+# version had a commented-out placeholder line to be replaced in place — and the first
+# person to fill it left the leading "#" on the first line, so the whole check sat inside a
+# comment and the gate silently enforced nothing. When the unit of replacement is a whole
+# file, that mistake is not available.
 #
-# Worked example — a pure layer that must not import the engine:
-#
-#   hits=$(scan_grep 'UnityEngine' | grep '^core/')
-#   if [ -n "$hits" ]; then
-#     echo "FAIL [boundary]: UnityEngine inside the pure core:"; echo "$hits"; fail=1
-#   fi
-#
-# Every check added here gets a matching case in self_test(). No exceptions.
-# {{BOUNDARY_CHECKS}}
+# scripts/boundary_checks.sh is sourced, not executed, so it can set `fail=1` and use
+# scan_grep. Every check in it gets a matching case in scripts/boundary_selftests.sh.
+if [ -f scripts/boundary_checks.sh ]; then
+  . ./scripts/boundary_checks.sh
+fi
 
 # ---------------------------------------------------------------------------
 # 4) Build & tests

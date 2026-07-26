@@ -128,7 +128,24 @@ What went into the kit: `core/scripts/review.sh` strips ANSI escapes before matc
 an extracted field that comes out empty is REPORTED as not found rather than written as
 blank. Same shape as finding #1 — absent evidence must be visible, not silent.
 
-#### 5. Every-session files are a recurring bill, not a style preference — ACCEPTED
+#### 5. A placeholder inside a comment is a fail-open gate waiting to happen — ACCEPTED
+
+Found by the kit's own first end-to-end run, not by a project using it. `scripts/check.sh`
+carried a `# {{BOUNDARY_CHECKS}}` line meant to be replaced in place. The first fill
+substituted the marker but left the leading `#` on the first line, so the entire boundary
+check sat inside a comment. The gate reported `CHECK: PASS`, enforcing nothing — finding #1
+reproduced, in the very script written to prevent it, within an hour of writing it.
+
+That is the useful part: the trap is not a lapse of care, it is a property of the design.
+Any "replace this marked line with code" instruction can be half-followed, and a half-
+followed edit to a gate fails silently by default.
+
+What went into the kit: the checks and their negative tests live in their own sourced files
+(`scripts/boundary_checks.sh`, `scripts/boundary_selftests.sh`), replaced WHOLE. When the
+unit of replacement is a file rather than a line, the mistake is not available. Where a
+placeholder must stay inline it is now a VALUE in a quoted string, never a statement.
+
+#### 6. Every-session files are a recurring bill, not a style preference — ACCEPTED
 
 Cached input tokens are discounted heavily, which makes the always-loaded prefix — the
 constitution, the architecture map, the state file — the largest single cost lever in a
