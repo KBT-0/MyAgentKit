@@ -11,11 +11,11 @@
 # Every check here needs a matching case in scripts/boundary_selftests.sh. A check that has
 # never been observed rejecting anything has not been tested.
 #
-# Worked example — a pure layer that must not import the engine:
+# Worked example — a domain layer that must not depend on the delivery layer:
 #
-#   hits=$(scan_grep 'UnityEngine' | grep '^core/')
+#   hits=$(scan_grep 'from myapp\.web' | grep '^src/domain/')
 #   if [ -n "$hits" ]; then
-#     echo "FAIL [boundary]: UnityEngine inside the pure core:"
+#     echo "FAIL [boundary]: the domain layer imports the web layer:"
 #     echo "$hits"
 #     fail=1
 #   fi

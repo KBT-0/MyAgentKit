@@ -13,8 +13,8 @@ import sys
 
 # (path fragment, file suffix, forbidden tokens, message)
 BOUNDARIES = [
-    # ("/core/", ".cs", ("UnityEngine", "using Mirror"),
-    #  "the pure core must not reference the engine"),
+    # ("/src/domain/", ".py", ("from myapp.web", "import myapp.web"),
+    #  "the domain layer must not depend on the delivery layer"),
     # {{BOUNDARY_GUARDS}}
 ]
 

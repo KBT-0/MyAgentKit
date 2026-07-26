@@ -9,13 +9,13 @@
 #
 # Worked example, matching the example check:
 #
-#   mkdir -p core && printf 'using UnityEngine;\n' > core/.selftest.cs
+#   mkdir -p src/domain && printf 'from myapp.web import router\n' > src/domain/.selftest.py
 #   if sh "$0" >/dev/null 2>&1; then
-#     echo "  FAIL — engine-import gate stayed green with a forbidden import present."
+#     echo "  FAIL — domain/web boundary gate stayed green with a violation present."
 #     st_fail=1
 #   else
-#     echo "  ok   — engine-import gate rejects a forbidden import"
+#     echo "  ok   — domain/web boundary gate rejects a forbidden import"
 #   fi
-#   rm -f core/.selftest.cs
+#   rm -f src/domain/.selftest.py
 #
 # {{BOUNDARY_SELF_TESTS}}

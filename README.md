@@ -6,9 +6,11 @@ than requested**, memory that survives across tools and sessions, and a setup th
 template you copy and outgrow — installation is a conversation with an agent, and every
 project that uses it can push what it learned back into the kit.
 
-> **Status: v0.1 — extraction in progress.** The kit is being extracted from a project in
-> active use. It has **not yet been used to bootstrap a second project**, and the files
-> below land over the next commits — see `CHANGELOG.md` for what exists today. Treat the
+> **Status: v0.1 — extracted from a project in active use; not yet used to bootstrap a
+> second project.** `bootstrap.sh` is verified to produce a working skeleton in an empty
+> directory, and the gates are verified to fail when they should ([what was
+> tested](docs/ACCEPTANCE.md)). What has NOT happened yet is a real setup interview with a
+> real owner on a real second project, which is where the rough edges will be. Treat the
 > ecosystem-specific notes as unverified until the first research pass runs
 > (`RESEARCH_LOG.md`).
 
