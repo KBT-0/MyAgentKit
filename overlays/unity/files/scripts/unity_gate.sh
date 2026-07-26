@@ -116,7 +116,9 @@ self_test() {
   make_stub() { printf '%s\n' '#!/bin/sh' "$2" > "$1"; chmod +x "$1"; }
   probe() {
     label="$1"; want="$2"; stub="$3"
-    out=$(UNITY_PATH="$stub" UNITY_PROJECT="$project_dir" sh "$0" 2>&1)
+    # A THROWAWAY project dir, not the real one: run_gate mkdirs Logs/ and the stubs write
+    # result files, and an earlier version left that litter in the project tree.
+    out=$(UNITY_PATH="$stub" UNITY_PROJECT="$d/proj" sh "$0" 2>&1)
     if [ $? -eq 0 ]; then
       echo "  FAIL — $label: the gate PASSED."
       st_fail=1

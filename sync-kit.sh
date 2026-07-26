@@ -59,14 +59,26 @@ echo "KIT-OWNED files (overwritten):"
 found=0
 # Read the list line by line rather than through word splitting: a path containing a space
 # would otherwise be torn into two nonexistent paths and silently skipped.
-grep -rl 'KIT-OWNED' "$kit/core" "$kit/setup" 2>/dev/null | sort > "$work_list"
+#
+# The marker is matched ANCHORED at the start of a line, as a header comment. Matching the
+# bare phrase anywhere once meant a document that merely MENTIONED "KIT-OWNED" in prose
+# would have been silently overwritten wholesale.
+grep -rlE '^(# |<!-- )KIT-OWNED:' "$kit/core" "$kit/setup" "$kit/overlays" 2>/dev/null \
+  | sort > "$work_list"
 while IFS= read -r src; do
   [ -n "$src" ] || continue
+  overlay=0
   case "$src" in
-    "$kit/core/"*)  rel=${src#"$kit/core/"} ;;
-    "$kit/setup/"*) rel="setup/${src#"$kit/setup/"}" ;;
+    "$kit/core/"*)             rel=${src#"$kit/core/"} ;;
+    "$kit/setup/"*)            rel="setup/${src#"$kit/setup/"}" ;;
+    "$kit/overlays/"*/files/*) rel=${src#"$kit"/overlays/*/files/}; overlay=1 ;;
     *) continue ;;
   esac
+  # An overlay file is synced only where it already exists: its presence is the only record
+  # of whether the project took that overlay, and installing an overlay is bootstrap's job.
+  if [ "$overlay" -eq 1 ] && [ ! -e "$target/$rel" ]; then
+    continue
+  fi
   found=1
   if [ ! -e "$target/$rel" ]; then
     echo "  new:     $rel"
@@ -91,9 +103,14 @@ echo
 echo "=============================================================================="
 echo " Changelog since v$have — apply these to your PROJECT-OWNED files by hand"
 echo "=============================================================================="
-if grep -q "^## v$have\b" "$kit/CHANGELOG.md"; then
-  awk -v stop="## v$have" '
-    /^## v/ { if (index($0, stop) == 1) exit }
+# The recorded version is matched as an exact FIELD, never as a prefix: `index()` against
+# "## v0.1" also matched "## v0.10", so the slice stopped at the wrong heading and printed
+# an empty report — which reads as "no changes". (`\b` was no fix either; it is a GNU grep
+# extension, not POSIX.)
+if awk -v want="v$have" '$1 == "##" && $2 == want { found = 1 } END { exit !found }' \
+    "$kit/CHANGELOG.md"; then
+  awk -v want="v$have" '
+    $1 == "##" && $2 == want { exit }
     /^## v/ { p = 1 }
     p
   ' "$kit/CHANGELOG.md"

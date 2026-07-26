@@ -7,12 +7,41 @@ on the strength of its author's assurance. This page records what was actually e
 Anything not listed here was not verified. If a claim elsewhere in this repository is not
 backed by something below, that claim is unproven and should be read that way.
 
-## The cross-model review, and what it found
+## Two cross-model reviews, and what they found
 
 v0.1 was written end to end in a single session by one model. That is exactly the situation
-`docs/decorrelated-review.md` says cannot self-validate, so it was reviewed read-only by a
-different model (Codex CLI, gpt-5.6-sol, high effort) on 2026-07-26. Report:
-[`docs/reviews/20260726T141411Z-master.md`](reviews/20260726T141411Z-master.md).
+`docs/decorrelated-review.md` says cannot self-validate, so it was reviewed by other models —
+twice, because the first round of fixes turned out to need reviewing too.
+
+### Round 2 — Claude Fable 5, on the fixed tree
+
+After the seventeen findings below were fixed, a third model reviewed the result read-only at
+HEAD `70668e9`. Report:
+[`docs/reviews/20260726T150630Z-master.md`](reviews/20260726T150630Z-master.md).
+
+**Verdict: Reject. Eleven findings, two critical.** The important one:
+
+| What it found | Status |
+|---|---|
+| `scan_or_die` was fail-open — its `exit 1` ran inside a command substitution and killed only the subshell, so the gate continued to `CHECK: PASS`. Round 1's fix for the pipeline bug had reintroduced the pipeline bug | fixed — a flag file crosses the subshell boundary, checked last, with a negative test |
+| `guard_boundaries.py` read the edited text from `new_str`; the Edit tool sends `new_string`, so every violation written through Edit passed uninspected while the hook looked installed | fixed — both fields read, and the same bug fixed in the founding project |
+| `sync-kit.sh` printed an EMPTY changelog when the recorded version was a prefix of a later one (`v0.1` vs `v0.10`) — an empty report reads as "no changes" | fixed — the version is matched as an exact field, not a prefix |
+| A KIT-OWNED file inside an overlay could never be synced; and detection matched the bare phrase anywhere, so a doc that merely *mentioned* it would be overwritten | fixed — the marker is anchored to a header line, and overlays sync where installed |
+| `bootstrap.sh` stamped `.kit-version` and wired the hooks path BEFORE refusing a dangerous retrofit, so `sync-kit.sh` then greeted a gateless project with "already current" | fixed — the stop precedes every state change |
+| The comment-marker trap the kit banned was shipped in three of its own files | fixed — instructions to delete the `#`, and the hook's marker is now a live list element |
+| The worked example in `boundary_checks.sh` taught the fail-open calling pattern | fixed — the scanner fix makes that pattern safe, and the file says so |
+| An all-whitespace build command reached `sh -c`, exited 0 and passed the gate | fixed — whitespace is stripped before the test |
+| `unity_gate.sh --self-test` left stub XML and a `Logs/` directory in the real project tree | fixed — it runs against a throwaway directory |
+| `bootstrap.sh` iterated filenames line-by-line | fixed — a name containing a newline is refused outright |
+| `review.sh` exited 0 when the report had no `VERDICT:` line | fixed — exit 5 |
+
+Every fix was regressed on purpose and watched failing before being accepted; the scanner and
+whitespace cases are quoted under "Verified by execution" below.
+
+### Round 1 — Codex CLI, on the original tree
+
+Reviewed read-only by a different model (Codex CLI, gpt-5.6-sol, high effort) on 2026-07-26.
+Report: [`docs/reviews/20260726T141411Z-master.md`](reviews/20260726T141411Z-master.md).
 
 **Verdict: Reject. Seventeen findings.** Five were fail-open paths in the gates themselves —
 in the kit written to prevent fail-open gates:
@@ -55,7 +84,7 @@ command configured. Exit 1. An unconfigured project is not a green project.
 earlier run that "proved" this had deleted `setup/` first, which is how the blocker above
 went unnoticed; the current run does not.
 
-**`check.sh --self-test` — ten cases, all observed:**
+**`check.sh --self-test` — twelve cases, all observed:**
 
 ```
 ok — placeholder gate rejects an unfilled marker
@@ -67,13 +96,29 @@ ok — rot gate rejects a renamed 'Active work' heading
 ok — boundary checks missing is a FAILURE, not a skip
 ok — an unconfigured build/test command is a FAILURE, not a warning
 ok — a failing build/test command fails the gate
-ok — src/tests boundary gate rejects a forbidden import
+ok — an all-whitespace build/test command is unconfigured, not a no-op
+ok — a failed scanner cannot report a clean scan
+ok — domain boundary gate rejects a forbidden import
 ```
 
-**The self-test catches a broken gate.** The rot parser was sabotaged the way it broke
-originally — counting non-blank lines instead of bullets, so the section's own hint text
-reads as work — and the self-test reported FAIL, exit 1. A negative test that cannot detect
-the historical bug is not a negative test.
+**The self-test catches a broken gate**, in three separate sabotage runs:
+
+- The rot parser was reverted to counting non-blank lines instead of bullets, so the
+  section's own hint text reads as work. Self-test FAIL, exit 1.
+- The scanner was reverted to the round-1 design, where the failure path `exit`s from inside
+  a command substitution. The gate **stayed green** — reproducing the critical finding — and
+  the new case caught it: `FAIL — a failed scanner cannot report a clean scan: the gate
+  stayed GREEN with its failure condition present.`
+- The build-command guard was reverted to matching a single literal space. Same result: the
+  gate stayed green with `"  "` configured, and the case caught it.
+
+A negative test that cannot detect the historical bug is not a negative test.
+
+**The boundary hook was proven against real tool payloads.** A violation sent as an Edit
+(`new_string`) fires; the same violation sent as a Write (`content`) fires; a clean edit
+stays silent; a project that deleted the guard line is not nagged; and the previous field
+name (`new_str`) was re-run against the Edit payload to confirm it stayed **silent** — the
+bug was real, not theoretical.
 
 **The self-test refuses to run on a red tree**, and prints the baseline output rather than
 asserting why it was red.
@@ -126,8 +171,14 @@ validates the contract.
 nonzero, not that the INTENDED check fired rather than a different one reacting to the same
 injection. The final message says so.
 
-**The scanner-failure path has no negative test.** It is enforced by construction —
-`scan_or_die` exits rather than returning — but nothing injects a broken `git ls-files`.
+**The scanner-failure case breaks the scanner through a test switch**, not by making `grep`
+or `git ls-files` genuinely crash. It proves the flag-file plumbing end to end — a failed
+scan cannot end in `CHECK: PASS` — but a real crash could still fail in some way the switch
+does not model.
+
+**`sync-kit.sh` has never run against a genuine version upgrade.** Its version-collision,
+marker-anchoring and overlay behaviour were tested with a synthetic changelog and a copied
+kit; no project has yet been carried from one released version to the next.
 
 **The Unity overlay's asmdef layout has not been applied from these files**, and no real
 Unity run has gone through `unity_gate.sh`. Only its rejection paths were exercised.

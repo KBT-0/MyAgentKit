@@ -179,7 +179,15 @@ above is what catches them, and the overlay's own document explains each one.
 | `{{TOOLCHAIN}}` / `{{TOOLCHAIN_PATH_SETUP}}` / `{{TOOLCHAIN_SETUP_NOTES}}` / `{{TOOLCHAIN_SETUP_STEP}}` | What the gate needs on PATH, how to find it in a non-login shell, how CI installs it. `{{TOOLCHAIN_PATH_SETUP}}` is a directory to prepend, not a line of code |
 | `{{DEFAULT_BRANCH}}` | The branch CI runs on |
 | `{{STACK_IGNORE_RULES}}` | Stack-appropriate `.gitignore` rules. Remember: the re-include block stays LAST |
-| `{{GATED_PATHS}}` / `{{GATED_FILE_PATTERN}}` / `{{BOUNDARY_GUARDS}}` | Which paths the editor-side hooks watch, mirroring the checks above |
+| `{{GATED_PATHS}}` / `{{GATED_FILE_PATTERN}}` / `{{BOUNDARY_GUARDS}}` | Which paths the editor-side hooks watch, mirroring the checks above. `{{BOUNDARY_GUARDS}}` is a live list element: replace the quoted string with real tuples, or delete the line if nothing is guardable — do not leave it a string |
+
+**Two of these sit on a commented line, and the `#` is part of what you replace.**
+`{{TOOLCHAIN_SETUP_STEP}}` in the CI workflow and `{{STACK_IGNORE_RULES}}` in `.gitignore`
+are followed by an instruction comment; delete the marker, the leading `#` and the
+instruction together. Substituting only the token leaves the replacement inside a comment,
+which is how a check ends up enforcing nothing while everything still reports green. That
+mistake has already been made twice in this kit's history, which is why every other
+placeholder is either a quoted value or a whole file.
 
 ### Process
 

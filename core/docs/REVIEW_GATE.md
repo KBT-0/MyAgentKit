@@ -63,6 +63,18 @@ Manual checks are written to `docs/STATE.md` BEFORE the commit, as full explicit
 Questions of taste, feel, balance or product direction go to {{OWNER_NAME}} — the reviewer
 proposes, never decides.
 
+**A Reject is not closed by its fixes.** The fixes go through this gate too, in a fresh
+session, and a risky-area diff stays risky when the diff is the remediation. This is not
+ceremony: a fix is written by the party that just accepted the criticism, it lands in the
+code that was already subtle enough to get wrong once, and it ships beside a document
+asserting the problem is now solved — which is what the next reader trusts instead of the
+code. This kit's own first remediation replaced a fail-open scanner with a differently
+fail-open scanner, and wrote "enforced by construction" in two places while it was false.
+
+For the same reason, **"enforced by construction" is a claim that needs a negative test**,
+exactly like any other. Where a construction genuinely cannot be tested, say so in the
+acceptance record instead of asserting the guarantee.
+
 ## Running it
 
 `./scripts/review.sh [--uncommitted | --base <ref> | --commit <sha>]` collects the change

@@ -31,7 +31,9 @@ desktop.ini
 ########################################
 # Stack-specific rules
 ########################################
-# {{STACK_IGNORE_RULES}}
+# {{STACK_IGNORE_RULES}} — replace this ENTIRE line, leading "#" included, with the
+# stack's rules. A half-edit that keeps the "#" ships an ignore line that ignores nothing,
+# and the build junk it was meant to stop lands in the next commit.
 
 ########################################
 # Re-includes — MUST STAY LAST (git applies the last matching rule)

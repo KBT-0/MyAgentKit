@@ -15,13 +15,34 @@ import sys
 BOUNDARIES = [
     # ("/src/domain/", ".py", ("from myapp.web", "import myapp.web"),
     #  "the domain layer must not depend on the delivery layer"),
-    # {{BOUNDARY_GUARDS}}
+    "{{BOUNDARY_GUARDS}}",
 ]
+# The marker above is a LIVE list element, not a comment, on purpose: the setup interview
+# replaces the string with real tuples (or with nothing, for a project with no guardable
+# boundary). A marker in a comment can be half-filled — token replaced, "#" kept — leaving
+# an empty list that guards nothing while looking configured. As a string it is instead
+# caught below, loudly, on every edit until setup finishes.
 
 data = json.load(sys.stdin)
 tool_input = data.get("tool_input", {})
 path = tool_input.get("file_path", "")
-content = (tool_input.get("content", "") or "") + (tool_input.get("new_str", "") or "")
+# Write sends `content`; Edit sends `new_string`. An earlier version read `new_str` — a
+# field no tool sends — so everything written through Edit went uninspected while the hook
+# looked installed. If these names drift, this hook is inert again: verify them against the
+# tool's actual schema, not from memory.
+content = "".join(tool_input.get(k) or "" for k in ("content", "new_string"))
+
+unconfigured = [b for b in BOUNDARIES if isinstance(b, str)]
+if unconfigured:
+    print(json.dumps({"hookSpecificOutput": {
+        "hookEventName": "PostToolUse",
+        "additionalContext": (
+            "guard_boundaries.py is UNCONFIGURED: its BOUNDARIES list still holds the "
+            "setup placeholder, so no boundary is being guarded. Finish setup/INTERVIEW.md "
+            "(scripts/check.sh is failing on the same marker)."
+        ),
+    }}))
+    sys.exit(0)
 
 for fragment, suffix, tokens, why in BOUNDARIES:
     if fragment not in path or not path.endswith(suffix):

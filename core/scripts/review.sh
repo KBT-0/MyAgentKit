@@ -210,8 +210,15 @@ if [ ! -s "$last" ]; then
   echo "               raw transcript instead. Read it before treating this as a review."
 fi
 if ! grep -q '^VERDICT:' "$report"; then
-  echo "WARN [review]: no VERDICT line in the report. The run may have been cut short —"
-  echo "               do not record a verdict the reviewer did not give."
+  # Nonzero on purpose: a run cut short before its verdict is not a completed review, and a
+  # zero exit here would let a scripted caller treat it as one. The report stays archived —
+  # this is about the exit status, not the evidence.
+  echo "FAIL [review]: no VERDICT line in the report. The run was cut short or the reviewer"
+  echo "               ignored its instructions. The report is archived at $report; read it,"
+  echo "               but do not record a verdict the reviewer did not give."
+  cat "$report"
+  [ "$status" -eq 0 ] && status=5
+  exit "$status"
 fi
 
 cat "$report"

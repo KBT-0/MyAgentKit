@@ -176,7 +176,48 @@ around. Reviewing gate code by a fresh session is now a permanent, non-placehold
 `core/docs/REVIEW_GATE.md`; this is the third time in two repositories that the rule has
 been earned rather than assumed.
 
-#### 7. Every-session files are a recurring bill, not a style preference — ACCEPTED
+#### 7. A review's FIXES are unreviewed code, and they fail the same way — ACCEPTED
+
+Finding #6 ended with seventeen findings fixed and the kit published. A third model then
+reviewed the FIXED tree and returned Reject again — eleven findings, two critical. The one
+that matters:
+
+Round 1's most serious finding was a scanner whose failure was indistinguishable from a
+clean scan, because the producer sat in a pipeline ending `|| true`. The fix introduced
+`scan_or_die`, which printed a diagnostic and called `exit 1` on a failed scan. It was
+called as `hits=$(scan_or_die … | grep -Ev … || true)`.
+
+`exit` inside a command substitution terminates the SUBSHELL. The diagnostic printed, the
+subshell died, the main script carried on and reached `CHECK: PASS`. The fix for the
+fail-open scanner was a fail-open scanner. Worse, the repository had by then written the
+claim down in two places — the self-test's closing message and the acceptance record both
+said the path was "enforced by construction" — so the false belief was now documented,
+which is how it survives.
+
+The general shape, and the reason this is a finding rather than a bug report:
+
+- **A fix is written under time pressure, by the party who just accepted the criticism, and
+  it is the least reviewed code in the repository.** Everyone's attention is on whether the
+  original finding was real. Nobody asks whether the patch is.
+- **Fixes cluster in exactly the code that was already subtle enough to get wrong once.**
+  The second attempt is not safer than the first; it is written in the same place, by the
+  same author, against the same blind spot.
+- **A remediation commit tends to be self-certifying.** It ships alongside a document
+  asserting the problem is now solved, and that document is what the next reader trusts
+  instead of the code.
+
+What went into the kit: `core/docs/REVIEW_GATE.md` states that **fixes made in response to a
+review are themselves subject to the gate** — a Reject is not closed by the fixes, only by a
+fresh pass over them — and that a claim of "enforced by construction" is a claim requiring a
+negative test like any other. Where a construction genuinely cannot be tested, the acceptance
+record says so instead of asserting the guarantee.
+
+The mechanical lesson is worth its own line, because it is invisible and general: **in POSIX
+shell, a failure signal that must escape a command substitution cannot be an `exit` or a
+variable — it has to be a side effect on the filesystem.** The kit's scanner now drops a flag
+file, checked by the main shell after every scan has run.
+
+#### 8. Every-session files are a recurring bill, not a style preference — ACCEPTED
 
 Cached input tokens are discounted heavily, which makes the always-loaded prefix — the
 constitution, the architecture map, the state file — the largest single cost lever in a

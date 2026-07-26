@@ -130,6 +130,14 @@ self_test() {
     GATE_BUILD_CMD_OVERRIDE=" "
   expect_fail "a failing build/test command fails the gate" \
     GATE_BUILD_CMD_OVERRIDE="false"
+  expect_fail "an all-whitespace build/test command is unconfigured, not a no-op" \
+    GATE_BUILD_CMD_OVERRIDE="  "
+
+  # --- scanner integrity ------------------------------------------------------
+  # The switch makes scan_grep report failure the way a broken grep would. This proves the
+  # flag-file plumbing end to end — a failed scan cannot end in CHECK: PASS — though not a
+  # genuine grep crash.
+  expect_fail "a failed scanner cannot report a clean scan" GATE_SELFTEST_BREAK_SCANNER=1
 
   # --- project boundary self-tests ------------------------------------------
   # One case per check in the boundary checks file. Sourced, so it can set st_fail.
@@ -146,8 +154,8 @@ self_test() {
   if [ "$st_fail" -eq 0 ]; then
     echo "SELF-TEST: PASS — each case above was observed making the gate exit nonzero."
     echo "  NOT proven by this: that a nonzero exit came from the INTENDED check rather than"
-    echo "  from another one firing on the same injection; and nothing here exercises the"
-    echo "  scanner-failure path, which is enforced by construction (see scan_or_die)."
+    echo "  from another one firing on the same injection; and the scanner case breaks the"
+    echo "  scanner through a test switch, not by making grep itself crash."
     return 0
   fi
   echo "SELF-TEST: FAIL — a gate did not behave as claimed. It is protecting nothing."
@@ -187,26 +195,24 @@ if [ ! -s "$filelist" ]; then
 fi
 
 # scan_grep <extended-regex> — prints path:line:text for every match.
-# Returns 0 on match, 1 on no match, 2 when grep itself failed. A caller that ignores 2 is
-# reintroducing the bug above, so callers use scan_or_die.
+# Returns 0 on match, 1 on no match. When grep itself FAILS, it drops a flag file that the
+# main shell checks before the final verdict. The flag, not an exit, is deliberate: callers
+# run this inside command substitutions, where `exit` terminates only the SUBSHELL — an
+# earlier version "exited fatally" from inside `$(...)` and the gate sailed on to PASS.
+# A file crosses that boundary; nothing a caller does can turn a failed scan into a clean one.
 scan_grep() {
+  if [ -n "${GATE_SELFTEST_BREAK_SCANNER:-}" ]; then
+    : > "$work/scan_failed"
+    return 2
+  fi
   # -e keeps a pattern starting with "-" from being read as an option; -- ends the option
   # list so a file literally named "-v" is scanned instead of parsed. /dev/null guarantees
   # at least one file argument, so grep never falls back to stdin and always prints names.
   xargs -0 grep -InE -e "$1" -- /dev/null < "$filelist" 2>/dev/null
   st=$?
   [ "$st" -le 1 ] && return "$st"
+  : > "$work/scan_failed"
   return 2
-}
-
-scan_or_die() {
-  out=$(scan_grep "$1")
-  case $? in
-    0|1) printf '%s' "$out" ;;
-    *)   echo "FAIL [scan]: the scanner failed to run (pattern: $1). Refusing to report a" >&2
-         echo "             clean result from a scan that did not happen." >&2
-         exit 1 ;;
-  esac
 }
 
 # ---------------------------------------------------------------------------
@@ -222,7 +228,7 @@ scan_or_die() {
 # Without these exemptions a correctly configured project can never go green — which is
 # exactly what happened, and neither file is something the owner may simply delete, because
 # sync-kit.sh restores both.
-hits=$(scan_or_die '\{\{[A-Z0-9_]+\}\}' | grep -Ev '^(setup/|MODULE_AGENTS_TEMPLATE\.md:)' || true)
+hits=$(scan_grep '\{\{[A-Z0-9_]+\}\}' | grep -Ev '^(setup/|MODULE_AGENTS_TEMPLATE\.md:)' || true)
 if [ -n "$hits" ]; then
   echo "FAIL [setup]: unfilled placeholder markers remain — run setup/INTERVIEW.md:"
   echo "$hits" | head -30
@@ -296,8 +302,10 @@ fi
 # absent-evidence case: the gate would be reporting that nothing failed, having run nothing.
 build_test_cmd="{{BUILD_TEST_COMMAND}}"
 [ -n "${GATE_BUILD_CMD_OVERRIDE:-}" ] && build_test_cmd="$GATE_BUILD_CMD_OVERRIDE"
-case "$build_test_cmd" in
-  *"{{"*|""|" ")
+# Tested with its whitespace stripped: an all-blank command reaches `sh -c` as a no-op that
+# exits 0, which is a green gate with no build — the unconfigured case wearing spaces.
+case "$(printf '%s' "$build_test_cmd" | tr -d '[:space:]')" in
+  *"{{"*|"")
     echo "FAIL [build]: no build/test command is configured in scripts/check.sh. Set one —"
     echo "              use 'true' explicitly if this project genuinely has nothing to run,"
     echo "              so that the choice is visible in the diff instead of implied."
@@ -305,5 +313,17 @@ case "$build_test_cmd" in
   *)
     sh -c "$build_test_cmd" || fail=1 ;;
 esac
+
+# ---------------------------------------------------------------------------
+# 5) Scanner integrity — LAST, so it covers every scan above, including the project's own
+# boundary checks. The flag file is the one failure signal that survives a command
+# substitution (see scan_grep); checking it here is what makes `$(scan_grep …)` safe to
+# write in boundary_checks.sh.
+# ---------------------------------------------------------------------------
+if [ -e "$work/scan_failed" ]; then
+  echo "FAIL [scan]: a scanner failed to run somewhere above. Any clean result it appeared"
+  echo "             to produce is void — a scan that did not happen finds nothing."
+  fail=1
+fi
 
 if [ "$fail" -eq 0 ]; then echo "CHECK: PASS"; else echo "CHECK: FAIL"; exit 1; fi

@@ -31,11 +31,21 @@ Founding content, with the failure each rule prevents recorded in `RESEARCH_LOG.
   blank.
 - Always-loaded documents are a recurring token bill and are kept small and stable.
 
-Reviewed before release by a second model (Codex CLI, gpt-5.6-sol, read-only): **Reject,
-seventeen findings**, five of them fail-open paths in the gates. All fixed before publishing;
-report archived under `docs/reviews/`, reasoning in `RESEARCH_LOG.md` backflow finding #6.
-Notable consequences: `.claude/` moved out of `core/` into `overlays/claude-code/`, and
-`scripts/review.sh` now states that it targets the Codex CLI's interface rather than
-implying vendor neutrality.
+Reviewed before release by TWO other models, read-only, both returning **Reject** — the
+second one reviewing the first one's fixes:
+
+- Codex CLI (gpt-5.6-sol): **seventeen findings**, five of them fail-open paths in the gates.
+  Consequences worth naming: `.claude/` moved out of `core/` into `overlays/claude-code/`,
+  and `scripts/review.sh` now states that it targets the Codex CLI's interface rather than
+  implying vendor neutrality. Reasoning in `RESEARCH_LOG.md` backflow finding #6.
+- Claude Fable 5, on the fixed tree: **eleven findings, two critical.** The remediation for
+  the scanner had reintroduced the fail-open shape it fixed (`exit` inside a command
+  substitution kills only the subshell), and the editor-side boundary hook read a payload
+  field no tool sends, so everything written through Edit passed uninspected. Reasoning in
+  backflow finding #7 — which is why `docs/REVIEW_GATE.md` now says a Reject is not closed
+  by its own fixes.
+
+Both reports are archived under `docs/reviews/` as evidence. `docs/ACCEPTANCE.md` lists what
+was executed and what was not.
 
 **ACTION** — none. There is no earlier version to upgrade from.

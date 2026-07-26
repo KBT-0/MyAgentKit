@@ -18,7 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      # {{TOOLCHAIN_SETUP_STEP}}
+      # {{TOOLCHAIN_SETUP_STEP}} — replace this ENTIRE line, leading "#" included, with the
+      # real setup step(s); delete it if the runner needs nothing. A half-edit that keeps
+      # the "#" leaves CI without a toolchain — it fails, visibly but for the wrong reason.
 
       - name: Run gates
         run: ./scripts/check.sh

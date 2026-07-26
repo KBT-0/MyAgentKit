@@ -56,6 +56,12 @@ copy_tree() {
   src="$1"
   prefix="${2:-}"
   [ -d "$src" ] || return 0
+  # The loop below reads one filename per LINE, so a name containing a newline would be
+  # torn in two and copied wrong — refuse it outright. The kit controls its own tree, so
+  # this only ever fires on a corrupted or hand-mangled checkout.
+  if find "$src" -name "$(printf '*\n*')" 2>/dev/null | grep -q .; then
+    die "a filename under $src contains a newline; refusing to copy blind"
+  fi
   ( cd "$src" && find . -type f -print ) | sed 's|^\./||' | while IFS= read -r rel; do
     [ -n "$rel" ] || continue
     dest="${prefix:+$prefix/}$rel"
@@ -88,6 +94,38 @@ for f in "$target"/scripts/*.sh "$target"/.githooks/* "$target"/.claude/hooks/*;
   [ -f "$f" ] && chmod +x "$f"
 done
 
+if [ -s "$skiplist" ]; then
+  echo
+  echo "bootstrap: $(wc -l < "$skiplist") file(s) already existed and were left alone:"
+  sed 's/^/             /' "$skiplist"
+  echo "           Merge by hand, or re-run with --force to overwrite."
+fi
+
+# A retrofit that skipped the ENFORCEMENT files installed no enforcement, and saying so in
+# a list the reader skims is not enough: the installer would report success while the
+# repository's existing (possibly no-op) gate stays in place. That is the fail-open shape
+# this kit exists to prevent, so it is a hard stop rather than a note.
+#
+# The stop comes BEFORE the version stamp, the note and the hooks wiring: an earlier
+# version stamped .kit-version first and then refused — after which sync-kit.sh greeted the
+# gateless project with "already current. Nothing to do."
+if grep -qE '^(scripts/check\.sh|\.githooks/pre-commit)$' "$skiplist" 2>/dev/null; then
+  cat <<'EOF'
+
+STOPPING: the gate files already existed and were NOT replaced.
+
+  scripts/check.sh and .githooks/pre-commit are the enforcement. Whatever is in this
+  repository now is what will run — and if it is a no-op, this install just gave you the
+  paperwork of a gate with none of the gate.
+
+  Decide deliberately, then re-run:
+    - keep yours:      merge the kit's checks into your script by hand (docs/RETROFIT.md)
+    - take the kit's:  re-run with --force, then re-add your own checks
+  Either way, finish with:  ./scripts/check.sh --self-test
+EOF
+  exit 1
+fi
+
 printf '%s\n' "$version" > "$target/docs/kit/.kit-version"
 
 if [ -n "$note" ]; then
@@ -109,34 +147,6 @@ else
   echo "bootstrap: NOT a git repository yet. After 'git init', run:"
   echo "             git config core.hooksPath .githooks"
   echo "           Without it there is no commit gate (docs/DEV_SETUP.md)."
-fi
-
-if [ -s "$skiplist" ]; then
-  echo
-  echo "bootstrap: $(wc -l < "$skiplist") file(s) already existed and were left alone:"
-  sed 's/^/             /' "$skiplist"
-  echo "           Merge by hand, or re-run with --force to overwrite."
-fi
-
-# A retrofit that skipped the ENFORCEMENT files installed no enforcement, and saying so in
-# a list the reader skims is not enough: the installer would report success while the
-# repository's existing (possibly no-op) gate stays in place. That is the fail-open shape
-# this kit exists to prevent, so it is a hard stop rather than a note.
-if grep -qE '^(scripts/check\.sh|\.githooks/pre-commit)$' "$skiplist" 2>/dev/null; then
-  cat <<'EOF'
-
-STOPPING: the gate files already existed and were NOT replaced.
-
-  scripts/check.sh and .githooks/pre-commit are the enforcement. Whatever is in this
-  repository now is what will run — and if it is a no-op, this install just gave you the
-  paperwork of a gate with none of the gate.
-
-  Decide deliberately, then re-run:
-    - keep yours:      merge the kit's checks into your script by hand (docs/RETROFIT.md)
-    - take the kit's:  re-run with --force, then re-add your own checks
-  Either way, finish with:  ./scripts/check.sh --self-test
-EOF
-  exit 1
 fi
 
 cat <<'EOF'

@@ -8,12 +8,13 @@ project that uses it can push what it learned back into the kit.
 
 > **Status: v0.1 — extracted from a project in active use; not yet used to bootstrap a
 > second project.** `bootstrap.sh` produces a working skeleton in an empty directory, and
-> each gate has a negative test that was observed making it fail. A cross-model review of
-> v0.1 returned **Reject** with seventeen findings — five of them fail-open paths in the
-> gates themselves — and they are fixed; the report is in
-> [docs/reviews](docs/reviews/). Read [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) for exactly
-> what was executed and what was not. No real setup interview has been run with a real
-> owner yet, and that is where the rough edges will be.
+> each gate has a negative test that was observed making it fail. v0.1 was reviewed by two
+> other models and **both returned Reject** — seventeen findings, then eleven more against
+> the first round's fixes, because the fix for a fail-open scanner was itself fail-open. All
+> are fixed and the reports are in [docs/reviews](docs/reviews/). Read
+> [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) for exactly what was executed and what was not.
+> No real setup interview has been run with a real owner yet, and that is where the rough
+> edges will be.
 
 Part of my `MyFramework` line of personal foundations — this is the AI-agent one.
 

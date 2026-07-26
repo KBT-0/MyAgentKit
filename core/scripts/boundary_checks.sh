@@ -2,7 +2,8 @@
 #
 # Available to you here: `scan_grep <extended-regex>` (searches tracked and
 # untracked-but-not-ignored files, printing path:line:text) and the `fail` variable.
-# Set `fail=1` to fail the build.
+# Set `fail=1` to fail the build. If the scanner itself fails mid-scan, check.sh fails the
+# whole gate at the end — you do not need to handle that case, and `$(scan_grep …)` is safe.
 #
 # REPLACE THIS WHOLE FILE with your project's checks. Do not edit around the comments —
 # the file is the unit of replacement precisely so that a half-edit cannot leave a check
