@@ -1,11 +1,13 @@
 ---
 name: handoff
 description: >
-  Produce ONE self-contained implementation prompt to hand current work to another tool,
-  model or session. Use at the end of research when the work will be done elsewhere.
-  Input: target tool + task summary.
+  /handoff <target> <task summary> — produce ONE self-contained implementation prompt to
+  hand current work to another tool, model or session. Use at the end of research when the
+  work will be done elsewhere.
 ---
 <!-- KIT-OWNED: do not edit locally; change it in the kit and re-sync. -->
+<!-- Part of MyAgentKit (https://github.com/KBT-0/MyAgentKit). The canonical template this
+     follows is docs/HANDOFF.md, which is yours to edit; this wrapper is not. -->
 # /handoff <target> <task summary>
 
 Follow `docs/HANDOFF.md` (canonical) exactly: task and non-goals, file paths verified to

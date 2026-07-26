@@ -1,10 +1,13 @@
 ---
 name: cross-review
 description: >
-  Cross-model review of the current change set before commit (REVIEW_GATE.md). Runs a
-  second model read-only via scripts/review.sh, archives the report under docs/reviews/,
-  then VERIFIES each finding. Use for risky diffs and for any change to a gate.
+  /cross-review [--uncommitted | --base <ref> | --commit <sha>] — the review GATE, not a
+  review command. Runs a second model read-only via scripts/review.sh, archives the report
+  under docs/reviews/, then VERIFIES each finding rather than relaying it. Use for risky
+  diffs and for any change to a gate.
 ---
+<!-- Part of MyAgentKit (https://github.com/KBT-0/MyAgentKit). The protocol this enforces is
+     docs/REVIEW_GATE.md, which is yours to edit — this is only the wrapper around it. -->
 # /cross-review [--uncommitted | --base <ref> | --commit <sha>]
 
 {{OWNER_NAME}} must have asked for this in this session — it spends another tool's budget
