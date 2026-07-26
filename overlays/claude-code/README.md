@@ -3,19 +3,25 @@
 Install with `bootstrap.sh . --overlay claude-code`. This README is NOT copied — only
 `files/` is.
 
-## Why this is an overlay and not part of the core
+**The commands live in the plugin, not here.** `/myagentkit:handoff`,
+`/myagentkit:cross-review` and `/myagentkit:kit-feedback` are installed once per machine:
 
-The kit's rules are tool-agnostic: `AGENTS.md`, the workflow, the review protocol, the state
-file, `scripts/check.sh`, the git hook and CI all work under any CLI agent, or none.
+```
+/plugin marketplace add KBT-0/MyAgentKit
+/plugin install myagentkit@myagentkit
+```
 
-These files do not. They are Claude Code's config format — its hook events, its skill
-frontmatter, its subagent definition. Shipping them in the core meant every project got a
-`.claude/` directory whether or not anyone used that tool, and it let the kit imply a
-neutrality its automation did not have. An engine is an overlay here; so is a host agent.
+Those two lines are typed by a human — an agent cannot invoke slash commands. This overlay
+is the part that has to be copied into each project instead, because every file in it is
+project-specific.
 
-If you use a different tool, take this overlay's IDEAS and write the equivalent for yours:
-the hooks are worth reproducing, and the two skills are thin wrappers over documents that
-are already in the core.
+## Why this split
+
+A command is the same in every project, so it belongs in a versioned plugin you install once
+and upgrade in place. The files below are not: they carry `{{PLACEHOLDERS}}` that the setup
+interview fills with THIS project's boundaries, risky areas and gated paths. A plugin cannot
+hold them, and copying a command into every project would mean fixing a bug in it once per
+repository.
 
 ## What it adds
 
@@ -25,29 +31,42 @@ are already in the core.
 | `.claude/settings.json` | Registers the two hooks below |
 | `.claude/hooks/gate_on_stop.sh` | Runs the gate if a turn left the watched paths dirty — early feedback, never the rule |
 | `.claude/hooks/guard_boundaries.py` | Flags a forbidden import the moment it is written, seconds instead of a commit |
-| `.claude/agents/diff-reviewer.md` | Read-only review subagent following `docs/REVIEW_GATE.md` |
-| `.claude/skills/handoff/` | `/handoff` — wraps `docs/HANDOFF.md` |
-| `.claude/skills/cross-review/` | `/cross-review` — the review GATE: runs `scripts/review.sh`, then makes the caller verify every finding and own the verdict |
+| `.claude/agents/diff-reviewer.md` | Read-only review subagent carrying THIS project's risky areas and `docs/REVIEW_GATE.md` |
 
-## What `/cross-review` needs
+## Why this is an overlay and not part of the core
+
+The kit's rules are tool-agnostic: `AGENTS.md`, the workflow, the review protocol, the state
+file, `scripts/check.sh`, the git hook and CI all work under any CLI agent, or none.
+
+These files do not. They are Claude Code's config format — its hook events, its subagent
+definition. Shipping them in the core meant every project got a `.claude/` directory whether
+or not anyone used that tool, and it let the kit imply a neutrality its automation did not
+have. An engine is an overlay here; so is a host agent.
+
+If you use a different tool, take the IDEAS: the hooks are worth reproducing, and the
+commands are thin wrappers over `docs/HANDOFF.md` and `docs/REVIEW_GATE.md`, which are in
+the core and readable by anything.
+
+## What `/myagentkit:cross-review` needs
 
 A SECOND CLI on the machine. `scripts/review.sh` shells out to it, and out of the box it
-targets the Codex CLI's interface. Install it and log in, or the skill reports that it is
+targets the Codex CLI's interface. Install it and log in, or the command reports that it is
 missing and falls back to the paste-by-hand template in `docs/REVIEW_GATE.md`.
 
 The vendor plugin (`openai/codex-plugin-cc`) is OPTIONAL and is not used by
 `scripts/review.sh`; it adds in-session delegation commands. `docs/DEV_SETUP.md` §3 covers
 both, including the two cautions worth reading before installing it.
 
-Install it ALONGSIDE `/cross-review`, not instead of it. Its `/codex:review` is a review
-TOOL — a second model over your git state, generic and fast. `/cross-review` is the review
-GATE: it carries this project's own priority order, requires the caller to verify each
-finding instead of relaying it, archives the report as evidence under `docs/reviews/`, and
-ends in a verdict whose manual checks land in `docs/STATE.md` before the commit. Different
-jobs. The kit README's "Recommended setup" section spells the difference out.
+Install it ALONGSIDE `/myagentkit:cross-review`, not instead of it. Its `/codex:review` is a
+review TOOL — a second model over your git state, generic and fast. `/myagentkit:cross-review`
+is the review GATE: it carries this project's own priority order, requires the caller to
+verify each finding instead of relaying it, archives the report as evidence under
+`docs/reviews/`, and ends in a verdict whose manual checks land in `docs/STATE.md` before the
+commit. Different jobs. The kit README's "Recommended setup" section spells the difference
+out.
 
 ## The hooks are not the gate
 
-`.githooks/pre-commit` is. These fire earlier and only in one tool; they exist to shorten
-the feedback loop, not to carry enforcement. Nothing here is load-bearing — deleting the
-whole overlay leaves every rule intact and every gate running.
+`.githooks/pre-commit` is. These fire earlier and only in one tool; they exist to shorten the
+feedback loop, not to carry enforcement. Nothing here is load-bearing — deleting the whole
+overlay leaves every rule intact and every gate running.

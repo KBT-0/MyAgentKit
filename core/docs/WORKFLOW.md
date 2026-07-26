@@ -104,6 +104,11 @@ which NO code is written:
 - **Backflow question:** "Did we learn anything this cycle that belongs in the kit rather
   than only here?" If yes, change the kit FIRST, then sync. Record the answer, including
   "nothing".
+  Then the second half, which is what keeps the kit alive rather than merely local:
+  **offer to send it upstream.** `/myagentkit:kit-feedback` opens an issue or a pull request
+  against the kit repository — it scrubs this project out, shows the exact body, and sends
+  nothing without an explicit yes. A fix that stays local works, which is precisely why the
+  upstream one then never happens and the next project inherits the original problem.
 
 Output: a short `docs/audits/YYYY-MM.md` plus a list of cleanup tasks that enter the normal
 loop. **The audit is itself a task; skip it and decay advances invisibly.**

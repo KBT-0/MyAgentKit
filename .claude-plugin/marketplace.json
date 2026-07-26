@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "myagentkit",
+  "description": "Foundation for codebases written mostly by AI agents: rules enforced by gates, memory that survives across tools, and a review protocol the author cannot approve.",
+  "owner": {
+    "name": "Kemal Berhan TAN",
+    "url": "https://github.com/KBT-0"
+  },
+  "plugins": [
+    {
+      "name": "myagentkit",
+      "description": "The review gate, the handoff brief, and a one-command path to send what you learned back upstream.",
+      "source": "./plugin",
+      "category": "workflow"
+    }
+  ]
+}

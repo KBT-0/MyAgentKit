@@ -46,6 +46,9 @@ None of that is fixed by a better prompt. It is fixed by structure.
   can run, never the implementer's self-report.
 - **Every tool must earn its permanent context cost.** The default verdict on a new tool,
   server or dependency is *no*.
+- **What a project learns flows back.** The kit is maintained by the projects that hit its
+  edges, not only by its author — one command sends a finding upstream, after showing you
+  exactly what it would say.
 
 ## Quick start
 
@@ -53,11 +56,20 @@ None of that is fixed by a better prompt. It is fixed by structure.
 git clone https://github.com/KBT-0/MyAgentKit.git
 cd /path/to/your-project
 /path/to/MyAgentKit/bootstrap.sh .                        # rules and gates
-/path/to/MyAgentKit/bootstrap.sh . --overlay claude-code  # + hooks and skills (recommended)
+/path/to/MyAgentKit/bootstrap.sh . --overlay claude-code  # + hooks (recommended)
 /path/to/MyAgentKit/bootstrap.sh . --overlay unity        # + engine layer, if it applies
 ```
 
-Then open your CLI agent in the project and say:
+Once per machine, if you use Claude Code, install the commands — **you** have to type these
+two, an agent cannot invoke slash commands:
+
+```
+/plugin marketplace add KBT-0/MyAgentKit
+/plugin install myagentkit@myagentkit
+```
+
+That adds `/myagentkit:cross-review`, `/myagentkit:handoff` and `/myagentkit:kit-feedback`,
+at roughly 150 tokens of always-on cost. Then open your agent in the project and say:
 
 > Read `setup/INTERVIEW.md` and start the setup.
 
@@ -78,11 +90,13 @@ answered by a script. Pass `--note "..."` to leave an agenda the interview must 
 | `setup/INTERVIEW.md` | The real entry point — a conversational setup an agent runs with you |
 | `setup/RESEARCH_PROTOCOL.md` | How the agent researches the current tooling ecosystem before advising you |
 | `core/` | The universal layer: constitution, workflow, review gate, handoff template, state file, gates, hooks |
-| `overlays/` | Optional layers, added and never assumed: `unity` for the engine (assembly layout, the batchmode test gate, and a default MCP server — CoplayDev's tool-agnostic `MCP for Unity` — with the scoping traps that cost real time to find), `claude-code` for that tool's hooks and skills |
+| `overlays/` | Optional layers, added and never assumed: `unity` for the engine (assembly layout, the batchmode test gate, and a default MCP server — CoplayDev's tool-agnostic `MCP for Unity` — with the scoping traps that cost real time to find), `claude-code` for that tool's project-local hooks and review subagent |
+| `plugin/` | The Claude Code plugin: the three `/myagentkit:*` commands. Installed once per machine, not copied per project |
 | `patterns/` | Optional reading — the reasoning behind specific hard-won designs. Not copied by default |
 | `docs/` | Long-form rationale: why each rule exists, and the failure mode it prevents |
 | `sync-kit.sh` | Propagate kit updates into a project that already installed it |
 | `RESEARCH_LOG.md` | Dated findings with verdicts — including rejections, so they are not re-litigated |
+| `CONTRIBUTING.md` | How a project using the kit sends what it learned back |
 
 ## Recommended setup: Claude Code as the host, Codex as the second opinion
 
@@ -93,9 +107,9 @@ on, and it is a recommendation rather than a requirement:
 
 **Run Claude Code as your main agent**, with `overlays/claude-code/`. It contributes:
 
-- **`/cross-review`** — the review gate as a command. This is the kit's own, and the section
+- **`/myagentkit:cross-review`** — the review gate as a command. This is the kit's own, and the section
   below explains why it is not the same thing as a review command.
-- **`/handoff`** — turns the current work into ONE self-contained prompt for another tool,
+- **`/myagentkit:handoff`** — turns the current work into ONE self-contained prompt for another tool,
   model or session, so nothing depends on chat history the next reader cannot see.
 - **A read-only `diff-reviewer` subagent** — the review protocol without a second CLI, for
   when you want a fresh reviewing session rather than a fresh vendor.
@@ -110,7 +124,7 @@ only the `codex` binary — no plugin. Optionally add **OpenAI's `codex` plugin*
 `/codex:rescue` for handing an investigation or a stuck fix to a Codex subagent, and
 `/codex:transfer` to move the session into a resumable Codex thread.
 
-### `/cross-review` and `/codex:review` are not the same thing
+### `/myagentkit:cross-review` and `/codex:review` are not the same thing
 
 Install both. They answer different questions, and the difference is the whole point of the
 gate.
@@ -118,7 +132,7 @@ gate.
 **`/codex:review` is a review tool.** It runs a second model over your git state and hands
 you its findings. Fast, generic, useful, and it knows nothing about your project.
 
-**`/cross-review` is the review gate protocol**, which uses a second model as one input.
+**`/myagentkit:cross-review` is the review gate protocol**, which uses a second model as one input.
 Four things it does that a review command does not:
 
 1. **It makes you verify.** The reviewer's output is treated as *untrusted input*, never a
@@ -146,7 +160,7 @@ write-capable run), an empty change set exits nonzero instead of reporting a pas
 and a report with no verdict line is a failure rather than a success.
 
 Practically: reach for `/codex:review` or `/codex:adversarial-review` whenever you want
-another pair of eyes. Use `/cross-review` when the gate applies — risky diffs, and every
+another pair of eyes. Use `/myagentkit:cross-review` when the gate applies — risky diffs, and every
 change to a gate.
 
 **Why this direction and not the reverse.** The integrations are asymmetric: OpenAI ships a
@@ -188,6 +202,34 @@ Updates also flow the other way. Every project using the kit asks one question i
 periodic audit: *did we learn anything this cycle that belongs in the kit rather than
 here?* If yes, the kit changes first, then the project syncs. That is why
 `RESEARCH_LOG.md` exists.
+
+## The kit is supposed to outgrow me
+
+A foundation written once by one person goes stale exactly where that person does not work.
+Mine is a Unity and .NET shape; if the kit only ever sees that, its advice about everything
+else decays quietly and nobody finds out. So the loop back is built in rather than left to
+goodwill:
+
+- **After every ecosystem research pass** — which runs at install and in each audit — the
+  agent asks whether any of what it just found belongs upstream rather than only in your
+  project.
+- **When something about the foundation itself misbehaves** — a gate that failed open, a
+  rule that did not survive real work, an ambiguous setup instruction — the agent offers to
+  report it. That obligation is in the constitution, so it survives into every project.
+- **`/myagentkit:kit-feedback`** does the work: decides issue or PR, **strips your project
+  out of the text**, shows you the exact body, and sends nothing until you say yes.
+
+Three things it will never do, because this publishes to a public repository: send anything
+you have not read, include your paths, names or code, or act on its own initiative. It
+offers once, takes no for an answer, and a decline is recorded as a decision rather than
+retried.
+
+Doing it by hand is fine too — [CONTRIBUTING.md](CONTRIBUTING.md) is the same process
+written out, including what belongs here and what does not.
+
+Most wanted right now: **platforms I cannot test.** Only Linux under WSL has ever run these
+scripts. If something breaks on macOS, BSD or Windows, that is the single most useful thing
+you can send.
 
 ## Where this came from
 

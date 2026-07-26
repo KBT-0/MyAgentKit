@@ -11,6 +11,31 @@ WHY an entry exists belongs in `RESEARCH_LOG.md`; this file records WHAT changed
 
 ---
 
+## v0.2 — 2026-07-26
+
+The three commands moved out of the Claude Code overlay into a proper plugin, and the kit
+gained a way to be maintained by the projects using it rather than only by its author.
+
+- **Commands are now a Claude Code plugin**, installed once per machine instead of copied
+  into every project: `/myagentkit:cross-review`, `/myagentkit:handoff` and the new
+  `/myagentkit:kit-feedback`. Namespacing comes from the plugin, which also ends the risk of
+  a bare `handoff` or `cross-review` colliding silently with something else.
+- **`/myagentkit:kit-feedback`** sends a finding upstream as a GitHub issue or pull request.
+  It scrubs the project out of the text, shows the exact body, and sends nothing without an
+  explicit yes.
+- **Two places now offer it unprompted:** the end of an ecosystem research pass
+  (`setup/RESEARCH_PROTOCOL.md`) and the audit's backflow question
+  (`core/docs/WORKFLOW.md`). A third lives in the constitution's MENTION ONCE list, for when
+  the foundation itself misbehaves during ordinary work.
+- **`CONTRIBUTING.md`** is the same process by hand, with what belongs upstream and what
+  does not, the privacy rules, and the requirement that a gate change carries its negative
+  test.
+
+**ACTION** — install the plugin (`/plugin marketplace add KBT-0/MyAgentKit`, then
+`/plugin install myagentkit@myagentkit`), then delete `.claude/skills/handoff` and
+`.claude/skills/cross-review` from projects installed with v0.1. They are superseded;
+leaving them means two copies of the same command, one of which no longer receives fixes.
+
 ## v0.1 — 2026-07-26
 
 First extraction. The kit's Layer 1 (universal core), the Unity overlay and the optional

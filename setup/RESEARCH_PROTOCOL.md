@@ -100,6 +100,30 @@ Append to `RESEARCH_LOG.md`, with today's date:
 - If nothing was adopted, write that, with the date. "Nothing this cycle" is a valid and
   common result, and recording it is what makes the next baseline meaningful.
 
+## Then offer to send it upstream
+
+A research pass produces exactly the thing the kit cannot generate on its own: a dated,
+verdicted finding about the current ecosystem, from someone actually running it. The kit was
+written at one point in time by one person; everything it says about specific tools starts
+rotting immediately, and the only thing that slows that down is findings flowing back.
+
+So once the owner has accepted or rejected the findings, ASK — once for the pass, not once
+per finding:
+
+> "Some of this is about the kit rather than about this project. Want me to send it upstream
+> to MyAgentKit as an issue or a PR? I will show you the exact text first, with everything
+> about this project stripped out."
+
+If yes, run `/myagentkit:kit-feedback`, or follow `CONTRIBUTING.md` in the kit repository if
+the plugin is not installed. Either way the rule is the same: scrub the project out, show
+the full body, send nothing without an explicit yes.
+
+Worth sending: a tool the kit should know about, a rejection worth recording so nobody
+re-litigates it, an ecosystem claim in these files that turned out to be stale or wrong.
+Not worth sending: anything true only of this project's domain.
+
+If the owner says no, that is the end of it — do not ask again this session.
+
 ## Cadence
 
 At every install, and once inside each project's periodic architecture audit. Not

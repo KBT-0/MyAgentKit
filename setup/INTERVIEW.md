@@ -97,8 +97,8 @@ One topic per turn. Suggested order, because each answer informs the next:
      what you found.
    - If it is missing, explain the trade: without a second model, the review protocol
      becomes the paste-the-template-by-hand version in `docs/REVIEW_GATE.md`. That is a
-     genuine fallback, and the kit works without it. With it, `/cross-review` runs the whole
-     thing in-session.
+     genuine fallback, and the kit works without it. With it, `/myagentkit:cross-review`
+     runs the whole thing in-session.
    - **Offer to install it.** You can run the installer; the owner does the login. Say what
      you are about to run before you run it, and do not install anything they did not agree
      to — a new dependency needs their approval, which is a STOP rule in the constitution
