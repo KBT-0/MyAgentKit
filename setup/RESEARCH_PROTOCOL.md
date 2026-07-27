@@ -100,14 +100,19 @@ Append to `RESEARCH_LOG.md`, with today's date:
 - If nothing was adopted, write that, with the date. "Nothing this cycle" is a valid and
   common result, and recording it is what makes the next baseline meaningful.
 
-## Then offer to send it upstream
+## Then offer to send it upstream — IF the owner opted in
 
-A research pass produces exactly the thing the kit cannot generate on its own: a dated,
-verdicted finding about the current ecosystem, from someone actually running it. The kit was
-written at one point in time by one person; everything it says about specific tools starts
-rotting immediately, and the only thing that slows that down is findings flowing back.
+**Check `AGENTS.md` first.** The setup interview asked whether the agent should ever offer
+this, and the answer is a bullet in the MENTION ONCE list. If it says never offer, then never
+offer: finish the pass, write the log, and say nothing about the kit. That answer was given
+once so it would not have to be given again.
 
-So once the owner has accepted or rejected the findings, ASK — once for the pass, not once
+If the offer is allowed, a research pass is the natural moment for it. It produces exactly
+what the kit cannot generate on its own — a dated, verdicted finding about the current
+ecosystem, from someone actually running it — and everything the kit says about specific
+tools starts rotting the day it was written.
+
+Once the owner has accepted or rejected the findings, ask once for the whole pass, never once
 per finding:
 
 > "Some of this is about the kit rather than about this project. Want me to send it upstream
@@ -122,7 +127,9 @@ Worth sending: a tool the kit should know about, a rejection worth recording so 
 re-litigates it, an ecosystem claim in these files that turned out to be stale or wrong.
 Not worth sending: anything true only of this project's domain.
 
-If the owner says no, that is the end of it — do not ask again this session.
+If the owner says no, drop it — no follow-up, no rephrasing later in the session. A second
+ask after a no is how a useful offer turns into nagging, and nagging is how the whole
+mechanism gets switched off.
 
 ## Cadence
 

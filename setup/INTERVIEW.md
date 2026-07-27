@@ -55,6 +55,52 @@ phase exists to prevent.
 
 If the file does not exist, move on without comment.
 
+## Phase 0.5 — one question about the kit itself
+
+Ask this BEFORE the research pass, because that pass is the first thing that could produce
+something worth sending upstream. Ask it plainly, and do not oversell it:
+
+> "This foundation keeps learning inside your project either way — the research pass we are
+> about to run, the traps we hit later, all of that gets written into your own docs for your
+> own benefit, and none of it leaves this machine.
+>
+> Separately: some of what we learn is about the KIT rather than about this project. Do you
+> want me to occasionally offer to send those bits upstream to MyAgentKit as an issue or a
+> PR? You would see the exact text first, with everything about this project stripped out,
+> and nothing is ever sent without you saying yes.
+>
+> If you would rather I never bring it up, that is a completely normal answer — the command
+> `/myagentkit:kit-feedback` stays available for whenever you feel like it, and I just stay
+> quiet about it otherwise."
+
+Be accurate about what this is. There is **no collection and no telemetry**: nothing is
+gathered anywhere except this project's own `RESEARCH_LOG.md` and docs, nothing is
+transmitted without the owner reading the full body first, and the answer here changes only
+whether the agent OFFERS. Do not present it as a data or privacy setting — describing it as
+scarier than it is would be its own kind of dishonesty.
+
+Then fill `{{KIT_FEEDBACK_RULE}}` in `AGENTS.md` with exactly ONE of the two bullets below,
+whole and unedited.
+
+**If yes:**
+
+> - **Something about the FOUNDATION itself was wrong, unclear or missing** — a gate that
+>   failed open, a rule that did not survive contact with real work, an ambiguous setup
+>   instruction, a document contradicting itself → offer to send it upstream with
+>   `/myagentkit:kit-feedback`. It scrubs this project out, shows the exact text, and sends
+>   nothing without a yes. Offer ONCE per finding, take no for an answer, never send on your
+>   own initiative. Keep it light: a footnote in a closing summary, not a campaign.
+
+**If no:**
+
+> - **Never offer to report anything upstream to the kit.** The owner declined this at
+>   setup. Keep writing what we learn into this project's own docs exactly as before — that
+>   half is unchanged. If they ever want to send something, they will run
+>   `/myagentkit:kit-feedback` themselves.
+
+Record the answer as a DECIDED row in `docs/PROJECT.md` either way, so a later session knows
+it was asked and answered instead of asking again.
+
 ## Phase 1 — ecosystem research
 
 Run `setup/RESEARCH_PROTOCOL.md` now, before the project questions, so that any tooling you
@@ -253,17 +299,21 @@ placeholder is either a quoted value or a whole file.
 
 ## Phase 5 — backflow
 
-Ask the owner one question:
+**Skip this phase entirely if the owner said no in Phase 0.5.** Do not ask a softer version
+of the question; they already answered it.
+
+Otherwise, ask once:
 
 > "Did anything from this setup belong in the kit itself, rather than only in this project?"
 
 A rule you had to invent because the kit lacked it, a placeholder that was ambiguous, a
-question you needed that this file does not ask — those belong upstream. If the answer is
+question you needed that this file does not ask — those are the candidates. If the answer is
 yes, produce a ready-to-apply patch for the kit repository plus a `CHANGELOG.md` entry, and
-tell the owner where to send it.
+tell the owner where to send it. If the answer is no, or a shrug, that is the end of it.
 
-This is not a courtesy. It is the only mechanism by which the kit gets better instead of
-drifting further from the projects that use it.
+The reason the question exists: a foundation only finds out where it is wrong from the
+projects that hit its edges, and this setup is the one moment its gaps are freshly visible.
+A day later nobody remembers which instruction was confusing.
 
 ---
 

@@ -11,6 +11,34 @@ WHY an entry exists belongs in `RESEARCH_LOG.md`; this file records WHAT changed
 
 ---
 
+## v0.5 — 2026-07-27
+
+Sending findings upstream becomes opt-in, asked once, and the README stops describing an
+overlay that no longer exists.
+
+- **New placeholder `{{KIT_FEEDBACK_RULE}}` in the constitution.** Setup Phase 0.5 now asks
+  whether the agent should ever offer to send kit findings upstream, and fills the
+  placeholder with one of two whole bullets: the offer rule, or an instruction never to raise
+  it. A no is therefore structural — the clause is simply absent from that project's
+  constitution — instead of a preference every future session has to be told again.
+- **The offer is separated from the learning.** Research passes, audits and trap logging run
+  unchanged whatever the answer; they write to the project's own docs and always did. Only
+  the outward-facing offer is gated. `setup/RESEARCH_PROTOCOL.md` checks the constitution
+  before offering, and `INTERVIEW.md` Phase 5 is skipped outright on a no.
+- **Tone.** The two sentences that leaned on obligation — "this is not a courtesy" and "a
+  complaint that stays in a chat log improves nothing" — are gone. The mechanism is worth
+  explaining; it is not worth guilting somebody into.
+- **README corrections.** The overlay no longer claims to hold skills and commands (commands
+  are the plugin; there are no skills), the status block tracks the real version, and the
+  platform claim now says Linux native and WSL, naming macOS/BSD as the untested surface and
+  the GNU `grep`/`sed` assumptions as where they would break first.
+
+**ACTION** — existing projects: `AGENTS.md` is project-owned and is never overwritten, so
+`sync-kit.sh` will not add this. Decide the question yourself and paste the matching bullet
+from `setup/INTERVIEW.md` Phase 0.5 into the MENTION ONCE list, replacing the old
+kit-feedback bullet if it is there. Doing nothing leaves the v0.4 behaviour, which is the
+offer being made.
+
 ## v0.4 — 2026-07-27
 
 A guard against the failure that produced it. During this kit's own development a

@@ -6,13 +6,14 @@ than requested**, memory that survives across tools and sessions, and a setup th
 template you copy and outgrow — installation is a conversation with an agent, and every
 project that uses it can push what it learned back into the kit.
 
-> **Status: v0.1 — extracted from a codebase in active use.** `bootstrap.sh` produces a
+> **Status: v0.5 — extracted from a codebase in active use.** `bootstrap.sh` produces a
 > working skeleton in an empty directory, and each gate has a negative test that was
 > observed making it fail. v0.1 was reviewed by two other models and **both returned
 > Reject** — seventeen findings, then eleven more against the first round's fixes, because
 > the fix for a fail-open scanner was itself fail-open. All are fixed and the reports are in
-> [docs/reviews](docs/reviews/). Read [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) for exactly
-> what was executed and what was not.
+> [docs/reviews](docs/reviews/). Later versions carry their own review debt where it
+> applies; [docs/ACCEPTANCE.md](docs/ACCEPTANCE.md) records exactly what was executed and
+> what was not.
 
 Part of my `MyFramework` line of personal foundations — this is the AI-agent one.
 
@@ -50,9 +51,10 @@ None of that is fixed by a better prompt. It is fixed by structure.
   can run, never the implementer's self-report.
 - **Every tool must earn its permanent context cost.** The default verdict on a new tool,
   server or dependency is *no*.
-- **What a project learns flows back.** The kit is maintained by the projects that hit its
-  edges, not only by its author — one command sends a finding upstream, after showing you
-  exactly what it would say.
+- **What a project learns flows back, if you want it to.** A foundation improves fastest
+  from the projects that hit its edges — so one command sends a finding upstream, after
+  showing you exactly what it would say. Opt-in, asked once at setup, never on the agent's
+  own initiative.
 
 ## Quick start
 
@@ -106,20 +108,33 @@ answered by a script. Pass `--note "..."` to leave an agenda the interview must 
 
 The kit's central review rule is that **the author of a change never reviews it**, and that
 the value of a second opinion is that it is *decorrelated* — a different model, not the same
-one asked twice. That needs two CLIs. The pairing below is the one this was built and used
-on, and it is a recommendation rather than a requirement:
+one asked twice. That needs two CLIs.
 
-**Run Claude Code as your main agent**, with `overlays/claude-code/`. It contributes:
+**Which one you put in the driver's seat matters much less than having two.** The pairing
+below is the one this was built and used on, and it is a recommendation rather than a
+requirement; swap either side and every rule and gate still works.
 
-- **`/myagentkit:cross-review`** — the review gate as a command. This is the kit's own, and the section
-  below explains why it is not the same thing as a review command.
-- **`/myagentkit:handoff`** — turns the current work into ONE self-contained prompt for another tool,
-  model or session, so nothing depends on chat history the next reader cannot see.
-- **A read-only `diff-reviewer` subagent** — the review protocol without a second CLI, for
-  when you want a fresh reviewing session rather than a fresh vendor.
-- **Two editor-side hooks** — a boundary guard that fires the moment a forbidden import is
-  written, and the gate on every turn end. Neither is load-bearing; they shorten the
-  feedback loop from "next commit" to "next second".
+**Run Claude Code as your main agent.** Two reasons, and they are worth separating. The
+durable one is structural: the integrations are asymmetric, and only this direction lets one
+model reach the other without leaving the session — see [below](#why-this-direction). The
+softer one is a preference: in my use the Anthropic models sit more comfortably in the
+driver's seat — planning, splitting work, keeping a long task on the rails, and often the
+coding itself. That is a judgement about *today's* models and it will age like every other
+such judgement in this file, so weigh it as a starting point rather than a finding.
+
+With Claude Code you get:
+
+- **`/myagentkit:cross-review`** (plugin) — the review gate as a command. This is the kit's
+  own, and the section below explains why it is not the same thing as a review command.
+- **`/myagentkit:handoff`** (plugin) — turns the current work into ONE self-contained prompt
+  for another tool, model or session, so nothing depends on chat history the next reader
+  cannot see.
+- **A read-only `diff-reviewer` subagent** (overlay) — the review protocol without a second
+  CLI, for when you want a fresh reviewing session rather than a fresh vendor.
+- **Three editor-side hooks** (overlay) — a boundary guard that fires the moment a forbidden
+  import is written, a refusal to run destructive git commands over uncommitted work, and
+  the gate on every turn end. None is load-bearing; they shorten the feedback loop from
+  "next commit" to "next second".
 
 **Add the Codex CLI as the second model.** `scripts/review.sh` shells out to it and needs
 only the `codex` binary — no plugin. Optionally add **OpenAI's `codex` plugin**
@@ -167,13 +182,19 @@ Practically: reach for `/codex:review` or `/codex:adversarial-review` whenever y
 another pair of eyes. Use `/myagentkit:cross-review` when the gate applies — risky diffs, and every
 change to a gate.
 
-**Why this direction and not the reverse.** The integrations are asymmetric: OpenAI ships a
-Codex plugin that runs inside Claude Code, and there is no equivalent Anthropic-published
-plugin for Codex — its curated marketplace carries no Claude entry. So the host that can
-reach the other model in-session is Claude Code, and that is the only reason it is the
-recommended host here. Running it the other way works, it just costs you the ergonomics:
-Codex reads `AGENTS.md` natively, and `docs/REVIEW_GATE.md` has a paste-by-hand template for
-exactly that case.
+### Why this direction
+
+The integrations are asymmetric: OpenAI ships a Codex plugin that runs inside Claude Code,
+and there is no equivalent Anthropic-published plugin for Codex — its curated marketplace
+carries no Claude entry. So the host that can reach the other model in-session is Claude
+Code. That is the structural half of the recommendation, and unlike a claim about which
+model is smarter this month, it stays true until somebody ships the missing plugin.
+
+Running it the other way works. It costs you the in-session ergonomics, not the method:
+Codex reads `AGENTS.md` natively, and `docs/REVIEW_GATE.md` carries a paste-by-hand template
+for exactly that case. What you must not do is run both seats with the same model — that is
+the one substitution that breaks the gate rather than inconveniencing it, because two
+correlated opinions are one opinion.
 
 ## What is a recommendation, and what is a requirement
 
@@ -186,13 +207,21 @@ or whether you run one at all.
 
 **The shipped automation is not.** It was written for the pair above:
 
-- Claude Code's hooks, skills and subagent live in `overlays/claude-code/` — an overlay you
-  take deliberately, not part of the core.
+- Claude Code's project-local hooks and its `diff-reviewer` subagent live in
+  `overlays/claude-code/` — an overlay you take deliberately, not part of the core. The
+  three `/myagentkit:*` commands are not there; they are a plugin, installed once per
+  machine and upgraded in place.
 - `scripts/review.sh` targets the Codex CLI's flags. `REVIEW_CLI_BIN` swaps the binary, not
   the contract; another reviewer needs its invocation block edited. The script says so.
 
 Using neither costs you the editor-side hooks and one command. Every rule and every gate
 still runs.
+
+**That second bullet is the most useful thing you could send back.** If you wire the review
+gate to a different CLI — Gemini, a local model, whatever exists by the time you read this —
+that invocation block is a PR-shaped hole, and so is a port of the commands to another host
+agent. The gate's contract is small and written down in `docs/REVIEW_GATE.md`: read-only,
+scope-limited, verdict-terminated. Anything that satisfies it belongs here.
 
 ## How updates work
 
@@ -211,36 +240,56 @@ here?* If yes, the kit changes first, then the project syncs. That is why
 
 A foundation written once by one person goes stale exactly where that person does not work.
 Mine is a Unity and .NET shape; if the kit only ever sees that, its advice about everything
-else decays quietly and nobody finds out. So the loop back is built in rather than left to
-goodwill:
+else decays quietly and nobody finds out.
 
-- **After every ecosystem research pass** — which runs at install and in each audit — the
-  agent asks whether any of what it just found belongs upstream rather than only in your
-  project.
-- **When something about the foundation itself misbehaves** — a gate that failed open, a
-  rule that did not survive real work, an ambiguous setup instruction — the agent offers to
-  report it. That obligation is in the constitution, so it survives into every project.
-- **`/myagentkit:kit-feedback`** does the work: decides issue or PR, **strips your project
-  out of the text**, shows you the exact body, and sends nothing until you say yes.
+Two separate things follow from that, and it is worth not confusing them.
 
-Three things it will never do, because this publishes to a public repository: send anything
-you have not read, include your paths, names or code, or act on its own initiative. It
-offers once, takes no for an answer, and a decline is recorded as a decision rather than
-retried.
+**The kit keeps learning in your project, always.** The ecosystem research at install, the
+periodic audit, the traps a real session walks into and writes down — that is how the
+foundation stays current for *you*, and it runs regardless of anything below. It writes to
+your own `RESEARCH_LOG.md` and your own docs. Nothing about it points outward.
+
+**Sending any of it upstream is opt-in, and the setup interview asks once.** The question is
+whether you want the agent to *offer* — "some of this looks like it belongs in the kit
+rather than here, want me to send it?" — or to stay quiet about it and leave the choice to
+you. Say no and the clause never enters your constitution, so no future session raises it
+again. `/myagentkit:kit-feedback` still works whenever you want it; declining the offer is
+not declining the door.
+
+If you leave the offer on, it stays a light touch: once per research pass, once when
+something about the foundation itself misbehaved — a gate that failed open, a rule that did
+not survive real work, an ambiguous instruction. Not once per finding, and never twice for
+the same one.
+
+Whichever way you answer, `/myagentkit:kit-feedback` behaves the same when you run it: it
+decides issue or PR, **strips your project out of the text**, shows you the exact body, and
+sends nothing until you say yes. Because it publishes to a public repository, three things
+it will never do are send anything you have not read, include your paths, names or code, or
+act on its own initiative.
 
 Doing it by hand is fine too — [CONTRIBUTING.md](CONTRIBUTING.md) is the same process
 written out, including what belongs here and what does not.
 
-Most wanted right now: **platforms I cannot test.** Only Linux under WSL has ever run these
-scripts. If something breaks on macOS, BSD or Windows, that is the single most useful thing
-you can send.
+Most useful thing to send, if you are looking for one: **a platform I cannot test.** These
+scripts run on Linux, native and under WSL. macOS and BSD are untested — the scripts are
+POSIX `sh`, but in places they assume GNU `grep` and `sed` behaviour, which is exactly where
+they would break first.
 
 ## Where this came from
 
-This is the accumulated result of about a year of building with CLI agents, mostly on Unity
-and .NET codebases — the practices that survived, pulled out of the projects that paid for
-them. Nothing here was designed in the abstract: every rule is in the kit because something
-broke without it. The founding lessons — including three gates that reported PASS while
-protecting nothing — are written up in `RESEARCH_LOG.md` with the failure each one prevents.
+Six years of shipping games, across several engines, with the depth in Unity and .NET. Long
+enough to have watched codebases rot for reasons that had nothing to do with the language,
+and to know which practices survive contact with a deadline and which ones are read once and
+never again.
+
+The last year of that went into a narrower question: how to work with CLI agents without
+paying the compounding cost they impose — the second implementation of a system nobody could
+find, the rule that erodes because nothing enforces it, the context that dies with the
+session. This kit is what came out of it. The year supplied the AI-specific parts; the six
+before it supplied the judgement about which of them were worth enforcing.
+
+Nothing here was designed in the abstract: every rule is in the kit because something broke
+without it. The founding lessons — including three gates that reported PASS while protecting
+nothing — are written up in `RESEARCH_LOG.md` with the failure each one prevents.
 
 MIT licensed.

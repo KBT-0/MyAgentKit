@@ -189,13 +189,7 @@ on, it is closed for this session.
 - Same manual procedure done a third time → suggest a skill.
 - Task was bulk and well-specified → suggest routing it to the cheaper model next time.
 - Session is long or context heavy → suggest resuming from `docs/STATE.md`.
-- **Something about the FOUNDATION itself was wrong, unclear or missing** — a gate that
-  failed open, a rule that did not survive contact with real work, an ambiguous setup
-  instruction, a document contradicting itself → offer to send it upstream with
-  `/myagentkit:kit-feedback`. It scrubs this project out, shows the exact text, and sends
-  nothing without a yes. Offer ONCE, take no for an answer, never send on your own
-  initiative. The foundation improves only from the projects that hit its edges; a complaint
-  that stays in a chat log improves nothing.
+{{KIT_FEEDBACK_RULE}}
 
 ### Decay findings
 
