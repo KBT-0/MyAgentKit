@@ -1,4 +1,4 @@
-# MyAgentKit
+# MyAgentKit_Keel
 
 A foundation for codebases written mostly by AI agents: rules that are **enforced rather
 than requested**, memory that survives across tools and sessions, and a setup that
@@ -6,7 +6,7 @@ than requested**, memory that survives across tools and sessions, and a setup th
 template you copy and outgrow — installation is a conversation with an agent, and every
 project that uses it can push what it learned back into the kit.
 
-> **Status: v0.5 — extracted from a codebase in active use.** `bootstrap.sh` produces a
+> **Status: v0.6 — extracted from a codebase in active use.** `bootstrap.sh` produces a
 > working skeleton in an empty directory, and each gate has a negative test that was
 > observed making it fail. v0.1 was reviewed by two other models and **both returned
 > Reject** — seventeen findings, then eleven more against the first round's fixes, because
@@ -59,18 +59,18 @@ None of that is fixed by a better prompt. It is fixed by structure.
 ## Quick start
 
 ```sh
-git clone https://github.com/KBT-0/MyAgentKit.git
+git clone https://github.com/KBT-0/MyAgentKit_Keel.git
 cd /path/to/your-project
-/path/to/MyAgentKit/bootstrap.sh .                        # rules and gates
-/path/to/MyAgentKit/bootstrap.sh . --overlay claude-code  # + hooks (recommended)
-/path/to/MyAgentKit/bootstrap.sh . --overlay unity        # + engine layer, if it applies
+/path/to/MyAgentKit_Keel/bootstrap.sh .                        # rules and gates
+/path/to/MyAgentKit_Keel/bootstrap.sh . --overlay claude-code  # + hooks (recommended)
+/path/to/MyAgentKit_Keel/bootstrap.sh . --overlay unity        # + engine layer, if it applies
 ```
 
 Once per machine, if you use Claude Code, install the commands — **you** have to type these
 two, an agent cannot invoke slash commands:
 
 ```
-/plugin marketplace add KBT-0/MyAgentKit
+/plugin marketplace add KBT-0/MyAgentKit_Keel
 /plugin install myagentkit@myagentkit
 ```
 

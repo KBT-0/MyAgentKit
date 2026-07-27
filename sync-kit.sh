@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# MyAgentKit — propagate kit updates into a project that already installed it.
+# MyAgentKit_Keel — propagate kit updates into a project that already installed it.
 #
 # Usage: sync-kit.sh [TARGET_DIR] [--dry-run]
 #

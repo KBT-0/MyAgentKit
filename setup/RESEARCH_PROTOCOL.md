@@ -116,7 +116,7 @@ Once the owner has accepted or rejected the findings, ask once for the whole pas
 per finding:
 
 > "Some of this is about the kit rather than about this project. Want me to send it upstream
-> to MyAgentKit as an issue or a PR? I will show you the exact text first, with everything
+> to MyAgentKit_Keel as an issue or a PR? I will show you the exact text first, with everything
 > about this project stripped out."
 
 If yes, run `/myagentkit:kit-feedback`, or follow `CONTRIBUTING.md` in the kit repository if

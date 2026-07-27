@@ -1,11 +1,11 @@
 ---
-description: Send something you learned back to MyAgentKit as a GitHub issue or pull request — the kit improves from the projects using it
+description: Send something you learned back to MyAgentKit_Keel as a GitHub issue or pull request — the kit improves from the projects using it
 argument-hint: "[what you learned, or leave empty to use the current conversation]"
 allowed-tools: Read, Glob, Grep, Bash(git:*), Bash(gh:*), AskUserQuestion
 ---
 # /myagentkit:kit-feedback [what you learned]
 
-Upstream is `https://github.com/KBT-0/MyAgentKit`. A kit that only its author edits goes
+Upstream is `https://github.com/KBT-0/MyAgentKit_Keel`. A kit that only its author edits goes
 stale in exactly the places its author does not work; this command is how a project that
 learned something the hard way pays it back.
 
@@ -71,15 +71,15 @@ as text for them to paste by hand. Do not attempt another route.
 **Issue:**
 
 ```sh
-gh issue create --repo KBT-0/MyAgentKit --title "<title>" --body-file <file>
+gh issue create --repo KBT-0/MyAgentKit_Keel --title "<title>" --body-file <file>
 ```
 
 **Pull request** — never push to upstream directly; fork:
 
 ```sh
-gh repo fork KBT-0/MyAgentKit --clone --remote=false   # once
+gh repo fork KBT-0/MyAgentKit_Keel --clone --remote=false   # once
 # in the fork: branch, make the change, run the kit's own checks, commit
-gh pr create --repo KBT-0/MyAgentKit --title "<title>" --body-file <file>
+gh pr create --repo KBT-0/MyAgentKit_Keel --title "<title>" --body-file <file>
 ```
 
 Before opening a PR, run the kit's own acceptance from the fork — bootstrap into a temp

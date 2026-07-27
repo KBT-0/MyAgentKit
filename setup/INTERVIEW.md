@@ -65,7 +65,7 @@ something worth sending upstream. Ask it plainly, and do not oversell it:
 > own benefit, and none of it leaves this machine.
 >
 > Separately: some of what we learn is about the KIT rather than about this project. Do you
-> want me to occasionally offer to send those bits upstream to MyAgentKit as an issue or a
+> want me to occasionally offer to send those bits upstream to MyAgentKit_Keel as an issue or a
 > PR? You would see the exact text first, with everything about this project stripped out,
 > and nothing is ever sent without you saying yes.
 >

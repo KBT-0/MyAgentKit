@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# MyAgentKit — mechanical install. Copy, mkdir, wire the hooks path, record the version.
+# MyAgentKit_Keel — mechanical install. Copy, mkdir, wire the hooks path, record the version.
 #
 # It asks NOTHING and fills NOTHING in. Every decision the kit needs — what is risky here,
 # which boundaries must be enforced, what the gates are — is made in a conversation with an
@@ -74,7 +74,7 @@ copy_tree() {
   done
 }
 
-echo "bootstrap: installing MyAgentKit v$version into $target"
+echo "bootstrap: installing MyAgentKit_Keel v$version into $target"
 
 copy_tree "$kit/core"
 copy_tree "$kit/setup" "setup"

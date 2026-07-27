@@ -1,5 +1,5 @@
 #!/usr/bin/env sh
-# MyAgentKit cross-model review wrapper.
+# MyAgentKit_Keel cross-model review wrapper.
 #
 # Runs a SECOND model over the current change set in a read-only sandbox, archives the raw
 # output under docs/reviews/ together with the configuration that produced it, and prints
@@ -129,7 +129,7 @@ if [ "$diff_bytes" -gt 400000 ]; then
   die "$scope_label is $diff_bytes bytes. Review it in smaller pieces."
 fi
 
-prompt='You are the safety diff reviewer for MyAgentKit. You are READ-ONLY: no file
+prompt='You are the safety diff reviewer for MyAgentKit_Keel. You are READ-ONLY: no file
 edits, no state-changing commands.
 
 Read '"$REVIEW_DOCS"' first, then review this change

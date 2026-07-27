@@ -11,6 +11,26 @@ WHY an entry exists belongs in `RESEARCH_LOG.md`; this file records WHAT changed
 
 ---
 
+## v0.6 — 2026-07-27
+
+Renamed: **MyAgentKit → MyAgentKit_Keel**. A keel is a ship's backbone and the first part
+laid down — "laying the keel" is the moment construction begins — which is what a project
+foundation is for. It also carries the sense in "on an even keel": the thing that keeps a
+project stable rather than the thing that moves it.
+
+- The repository is now `KBT-0/MyAgentKit_Keel`. GitHub redirects the old path, so existing
+  clones and marketplace entries keep working; the install lines in the README are updated
+  to the new one.
+- **The plugin is deliberately NOT renamed.** It stays `myagentkit`, so `/myagentkit:handoff`,
+  `/myagentkit:cross-review` and `/myagentkit:kit-feedback` are exactly what they were. A
+  command a person has learned to type is a bad thing to rename for cosmetic reasons.
+- Archived review reports under `docs/reviews/` are left untouched. They are dated evidence
+  of what was said at the time, and evidence is not edited afterwards — including for a
+  rename.
+
+**ACTION** — none required. If you cloned by URL, `git remote set-url origin
+git@github.com:KBT-0/MyAgentKit_Keel.git` avoids relying on the redirect.
+
 ## v0.5 — 2026-07-27
 
 Sending findings upstream becomes opt-in, asked once, and the README stops describing an
@@ -116,7 +136,7 @@ gained a way to be maintained by the projects using it rather than only by its a
   does not, the privacy rules, and the requirement that a gate change carries its negative
   test.
 
-**ACTION** — install the plugin (`/plugin marketplace add KBT-0/MyAgentKit`, then
+**ACTION** — install the plugin (`/plugin marketplace add KBT-0/MyAgentKit_Keel`, then
 `/plugin install myagentkit@myagentkit`), then delete `.claude/skills/handoff` and
 `.claude/skills/cross-review` from projects installed with v0.1. They are superseded;
 leaving them means two copies of the same command, one of which no longer receives fixes.

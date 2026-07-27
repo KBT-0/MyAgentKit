@@ -7,7 +7,7 @@ Install with `bootstrap.sh . --overlay claude-code`. This README is NOT copied â
 `/myagentkit:cross-review` and `/myagentkit:kit-feedback` are installed once per machine:
 
 ```
-/plugin marketplace add KBT-0/MyAgentKit
+/plugin marketplace add KBT-0/MyAgentKit_Keel
 /plugin install myagentkit@myagentkit
 ```
 
