@@ -160,6 +160,31 @@ self_test() {
   expect_fail "PROJECT gate rejects a MISSING project file"                    PROJECT_FILE="$work/absent.md"
   expect_pass "PROJECT gate stays quiet on a young file with no sections yet"  PROJECT_FILE="$proj_young"
 
+  # --- the commit hook --------------------------------------------------------
+  # The hook is the gate that actually holds, for every tool, and until now nothing proved
+  # it carries a red gate out to a nonzero exit. It is four lines, which is exactly the kind
+  # of code nobody tests and everybody assumes.
+  hook=".githooks/pre-commit"
+  if [ -f "$hook" ]; then
+    if sh "$hook" >/dev/null 2>&1; then
+      echo "  ok   — commit hook exits 0 on a green tree"
+    else
+      echo "  FAIL — commit hook rejected a GREEN tree; every commit would be blocked."
+      st_fail=1
+    fi
+    printf 'injected by check.sh --self-test: %s%s\n' '{{SELF_TEST' '_TOKEN}}' > "$inj"
+    if sh "$hook" >/dev/null 2>&1; then
+      echo "  FAIL — commit hook exited 0 while the gate was RED. It is blocking nothing."
+      st_fail=1
+    else
+      echo "  ok   — commit hook aborts the commit when the gate is red"
+    fi
+    rm -f "$inj"
+  else
+    echo "  FAIL — $hook is missing: nothing enforces the gate at commit time."
+    st_fail=1
+  fi
+
   # --- scanner integrity ------------------------------------------------------
   # The switch makes scan_grep report failure the way a broken grep would. This proves the
   # flag-file plumbing end to end — a failed scan cannot end in CHECK: PASS — though not a

@@ -21,8 +21,17 @@ cd "$root" || exit 1
 # Fast gate only, deliberately with no flags. Everything slow stays out of the commit path:
 # --self-test invokes the whole gate a dozen times, and a project's opt-in gates (an engine
 # running in batchmode, an integration suite) cost minutes and sometimes need a live install.
-# Those belong in the periodic audit or in CI. A commit hook people start bypassing is worse
-# than no commit hook at all, and slowness is what makes them start.
+# A commit hook people start bypassing is worse than no commit hook, and slowness is what
+# makes them start.
+#
+# BEING OUT OF THE COMMIT PATH IS NOT BEING OPTIONAL, and this comment used to imply it was.
+# Each of those gates has its own binding trigger written down where it is defined — an
+# engine gate typically at task completion ("this work is not done until its tests pass"),
+# the self-test at the periodic audit. Honour the trigger the gate states.
+#
+# Do not assume CI covers them either: the CI this kit ships runs `./scripts/check.sh` and
+# nothing else, so an opt-in gate runs in CI only if the project added it there deliberately.
+# Check before believing it.
 if ./scripts/check.sh; then
   exit 0
 fi
