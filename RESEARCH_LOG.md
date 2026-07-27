@@ -306,7 +306,40 @@ The asymmetry is the point. A wrongly captured question is noise somebody delete
 minute. A wrongly promoted decision is invisible, binding on every future session, and
 compounds — nobody re-reads a DECIDED item to ask whether it was ever really decided.
 
-#### 11. Every-session files are a recurring bill, not a style preference — ACCEPTED
+#### 11. Uncommitted work has no undo, and an agent will eventually take some — ACCEPTED
+
+The reflog records COMMITS. `git reset --hard`, `checkout --`, `restore`, `clean -f` and
+`stash drop` discard the working tree, and anything never committed is then gone with no
+message, no trace, and a `git status` that looks clean afterwards.
+
+It happened during this kit's own development, which is the only reason it is written down
+rather than assumed. A `git reset --hard HEAD~1`, run to remove a throwaway test commit,
+also took a set of uncommitted gate fixes and — worse — a long review record the owner had
+written BY HAND and not yet committed. The fixes were re-typed from context. His paragraph
+was unrecoverable from git and had to be reconstructed from a chat transcript.
+
+Three things make this specifically an agent failure rather than a git one:
+
+- **The command was correct for its stated purpose.** Removing a test commit is exactly what
+  `reset --hard` does. Nothing about the invocation looked wrong.
+- **The agent believed the tree was clean**, because it was thinking about its own work and
+  had not looked at `git status`. The owner's edit was invisible to it.
+- **The loss is silent.** No error, no warning, no diff. It surfaced only when the owner went
+  looking for something he had written and found it missing.
+
+What went into the kit: the rule in the constitution (commit or stash first, every time,
+especially when sure), the reasoning in `GOTCHAS.md`, and — because a rule an agent promises
+to remember is worth nothing here — a mechanism.
+`overlays/claude-code/files/.claude/hooks/guard_destructive_git.py` blocks all of these
+commands while the tree is dirty and prints the file list that would have been destroyed. It
+allows `stash push`, `commit` and `--force-with-lease`, which are the recoverable ways to do
+the same jobs.
+
+The general lesson is not about git. **An agent's cleanup is the most dangerous thing it
+does**, because it is the one action taken while attention has already moved to the next
+task, and it is the one place where "I was sure" replaces looking.
+
+#### 12. Every-session files are a recurring bill, not a style preference — ACCEPTED
 
 Cached input tokens are discounted heavily, which makes the always-loaded prefix — the
 constitution, the architecture map, the state file — the largest single cost lever in a

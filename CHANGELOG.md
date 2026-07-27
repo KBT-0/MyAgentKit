@@ -11,6 +11,28 @@ WHY an entry exists belongs in `RESEARCH_LOG.md`; this file records WHAT changed
 
 ---
 
+## v0.4 — 2026-07-27
+
+A guard against the failure that produced it. During this kit's own development a
+`git reset --hard`, run to drop a throwaway commit, destroyed uncommitted work — including a
+review record the owner had written by hand, which git could not recover because the reflog
+holds commits and nothing else.
+
+- **`overlays/claude-code/files/.claude/hooks/guard_destructive_git.py`** blocks
+  `reset --hard`, `checkout --`, `restore`, `clean -f`, `stash drop` and force pushes while
+  the tree is dirty, printing the file list that would have been lost. `stash push`, `commit`
+  and `--force-with-lease` pass through — the recoverable ways to do the same jobs.
+- **The constitution** gains the rule for tools without the hook: commit or stash first,
+  every time, and check `git status` rather than trusting that the tree is clean.
+- **`core/docs/GOTCHAS.md`** carries the reasoning; `RESEARCH_LOG.md` finding #11 carries
+  the general form, which is not about git: an agent's cleanup is the most dangerous thing it
+  does, because attention has already moved to the next task.
+
+**ACTION** — projects on v0.3 that took the claude-code overlay: copy the new hook in and add
+the `PreToolUse` block to `.claude/settings.json` (see `overlays/claude-code/files/`).
+Projects using another tool get the constitution rule and nothing enforcing it, which is
+worth knowing rather than assuming.
+
 ## v0.3 — 2026-07-27
 
 Project knowledge gets its own layer. Until now the kit had a slot for a design document

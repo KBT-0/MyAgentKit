@@ -78,6 +78,11 @@ Not read per session, but read it when something behaves unexpectedly: `docs/GOT
 
 - One task touches ONE module. If a second module is needed, split the task and report.
 - No drive-by refactors outside task scope, ever.
+- **Commit or stash BEFORE any destructive git command** — `reset --hard`, `checkout --`,
+  `restore`, `clean -f`, `stash drop`, a force push. Uncommitted work is NOT in the reflog:
+  the reflog records commits, so anything never committed dies silently and it may be
+  something {{OWNER_NAME}} wrote by hand. Check `git status` first, every time — being sure
+  the tree is clean is precisely the state in which this happens.
 - No untested code enters {{TESTED_AREA}}. Write tests with or before the code;
   `./scripts/check.sh` must PASS before you finish.
 - The gate is wired into git: `.githooks/pre-commit` runs it and aborts the commit on FAIL

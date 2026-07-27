@@ -16,6 +16,24 @@ before that line is deleted.
 The four entries below ship with the kit. They are not hypothetical: each cost a real day
 somewhere, and none of them depends on a particular language or stack.
 
+## Uncommitted work is NOT in the reflog
+
+`git reset --hard`, `git checkout -- <path>`, `git restore`, `git clean -f` and
+`git stash drop` discard the working tree, and the reflog does not save you: it records
+COMMITS. Anything never committed is gone the moment one of these runs — no message, no
+trace, and the next `git status` looks clean.
+
+This kit exists because of failures like it, and it still happened during the kit's own
+development: a `git reset --hard HEAD~1`, run to drop a throwaway test commit, also took a
+set of uncommitted fixes and a review record the owner had written by hand. The second was
+unrecoverable and had to be reconstructed from a chat transcript.
+
+**Commit or stash first, every time**, including — especially — when you are sure the tree
+is clean. `git stash push -u -m '...'` costs two seconds and is reversible.
+
+The Claude Code overlay ships `guard_destructive_git.py`, which blocks these commands while
+the tree is dirty and prints what would be lost. In any other tool the rule is yours to keep.
+
 ## `.gitignore` — the LAST matching rule wins
 
 Git applies the last pattern that matches, so a broad rule written *after* a re-include
