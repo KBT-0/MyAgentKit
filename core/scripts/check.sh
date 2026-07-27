@@ -145,8 +145,18 @@ self_test() {
   sed '/- 2\. Money/d' "$proj_ok" > "$proj_bad"
   { echo "# PROJECT"; echo; echo "## Contents"; echo; echo "(nothing decided yet)"; } > "$proj_young"
 
+  # A section number that is a PREFIX of a listed one. Under a substring match "1. Money"
+  # is found inside the Contents entry "11. Money" and the gate goes green on an unlisted
+  # section — which is what it did until the match was anchored.
+  {
+    echo "# PROJECT"; echo; echo "## Contents"; echo; echo "- 11. Money"; echo
+    echo "## 1. Money"; echo "unlisted"; echo; echo "## 11. Money"; echo "listed"
+  } > "$work/project_prefix.md"
+
   expect_pass "PROJECT gate accepts a file whose Contents lists every section" PROJECT_FILE="$proj_ok"
   expect_fail "PROJECT gate rejects a section missing from the Contents"       PROJECT_FILE="$proj_bad"
+  expect_fail "PROJECT gate is not fooled by a section number that prefixes another" \
+    PROJECT_FILE="$work/project_prefix.md"
   expect_fail "PROJECT gate rejects a MISSING project file"                    PROJECT_FILE="$work/absent.md"
   expect_pass "PROJECT gate stays quiet on a young file with no sections yet"  PROJECT_FILE="$proj_young"
 
@@ -316,13 +326,21 @@ elif ! grep -q "^## Contents" "$PROJECT_FILE"; then
 else
   # Headings first, then the Contents block, then the set difference. Compared on the
   # heading TEXT rather than on a link target, because the text is what a human maintains.
-  awk '/^## Contents/{f=1;next} /^## /{f=0} f' "$PROJECT_FILE" > "$work/toc"
+  # Entries are normalised to bare heading text — list marker, link syntax and trailing
+  # space removed — so that a Contents written as "- 1. Money" or "- [1. Money](#money)"
+  # both compare equal to the heading "## 1. Money".
+  awk '/^## Contents/{f=1;next} /^## /{f=0} f' "$PROJECT_FILE" \
+    | sed -e 's/^[[:space:]]*[-*][[:space:]]*//' \
+          -e 's/^\[//' -e 's/\](#[^)]*)[[:space:]]*$//' \
+          -e 's/[[:space:]]*$//' > "$work/toc"
   missing=""
-  # A literal-string grep (-F) so that punctuation in a heading is not read as a pattern.
   sed -n 's/^## \([0-9][0-9.]*\.\{0,1\}[[:space:]].*\)$/\1/p' "$PROJECT_FILE" > "$work/heads"
   while IFS= read -r h; do
     [ -n "$h" ] || continue
-    grep -qF -- "$h" "$work/toc" || missing="$missing
+    # -x anchors to the WHOLE line and -F takes the pattern literally. Without -x this was a
+    # substring test, and "1. Money" matched inside the Contents entry "11. Money" — so an
+    # unlisted section 1 passed the gate while the gate was reporting on section 11.
+    grep -qxF -- "$h" "$work/toc" || missing="$missing
   - $h"
   done < "$work/heads"
   if [ -n "$missing" ]; then

@@ -50,11 +50,11 @@ The full brief above is for handing work across tools. For an ordinary task insi
 session, the same skeleton compressed:
 
 ```
-Read: AGENTS.md, docs/STATE.md, docs/ARCHITECTURE.md, <target folder>/AGENTS.md
+Read: AGENTS.md, docs/PHASES.md, docs/STATE.md, docs/ARCHITECTURE.md, <target folder>/AGENTS.md
 
 TASK:   <one sentence — one module>
 SCOPE:  <the files you may touch>
-DO NOT: <explicit non-goals>
+DO NOT: <explicit non-goals — and everything docs/PHASES.md puts out of scope>
 VERIFY: ./scripts/check.sh — never report a check you did not run
 DONE:   <the command or observation that proves it>
 

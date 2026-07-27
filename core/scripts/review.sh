@@ -54,10 +54,25 @@ command -v "$cli" >/dev/null 2>&1 || die "reviewing CLI '$cli' not found. Instal
 model="${REVIEW_MODEL:-}"
 effort="${REVIEW_EFFORT:-high}"
 
+# The documents the reviewer is told to read FIRST. They are named here rather than hard
+# coded into the prompt because a repository whose foundation does not sit at the root — a
+# kit, a monorepo, a package inside a workspace — otherwise sends the reviewer to three
+# paths that do not exist, and it starts without the constitution or the priority order.
+# Check these resolve before trusting a review from this script.
+REVIEW_DOCS="${REVIEW_DOCS:-AGENTS.md, docs/ARCHITECTURE.md and docs/REVIEW_GATE.md}"
+
 branch=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo detached)
 head=$(git rev-parse --short HEAD 2>/dev/null || echo unknown)
 stamp=$(date -u +%Y%m%dT%H%M%SZ)
 report="docs/reviews/$stamp-$(echo "$branch" | tr '/ ' '--').md"
+# The stamp has one-second resolution, so two reviews started in the same second on the same
+# branch would pick the same path and the second would overwrite the first. Evidence that can
+# be silently replaced is not evidence, so never clobber: find a free name instead.
+n=1
+while [ -e "$report" ]; do
+  report="docs/reviews/$stamp-$(echo "$branch" | tr '/ ' '--')-$n.md"
+  n=$((n + 1))
+done
 last=$(mktemp); log=$(mktemp)
 trap 'rm -f "$last" "$log"' EXIT
 mkdir -p docs/reviews
@@ -116,8 +131,8 @@ fi
 prompt='You are the safety diff reviewer for {{PROJECT_NAME}}. You are READ-ONLY: no file
 edits, no state-changing commands.
 
-Read AGENTS.md, docs/ARCHITECTURE.md and docs/REVIEW_GATE.md first, then review this change
-set using the REVIEW_GATE.md priority order. Grep the callers of every changed public
+Read '"$REVIEW_DOCS"' first, then review this change
+set using the review gate'"'"'s priority order. Grep the callers of every changed public
 member. If the change touches a gate, a CI configuration or a check script, ask above all
 whether it has been proven to FAIL for the right reason and whether a negative test keeps
 it that way.
@@ -209,11 +224,17 @@ if [ ! -s "$last" ]; then
   echo "WARN [review]: the reviewing CLI produced no final message; the report carries the"
   echo "               raw transcript instead. Read it before treating this as a review."
 fi
-if ! grep -q '^VERDICT:' "$report"; then
+# The verdict is read from the reviewer's FINAL MESSAGE, not from the report, because the
+# report embeds the raw transcript when no final message came back — and a transcript can
+# contain the word VERDICT without the run having produced one. Only the three permitted
+# verdicts count: "VERDICT: incomplete" is a run that did not finish, not a result.
+verdict_src="$last"; [ -s "$verdict_src" ] || verdict_src="$report"
+if ! grep -qE '^VERDICT: (Accept|Accept with Manual Checks|Reject)[[:space:]]*$' "$verdict_src"; then
   # Nonzero on purpose: a run cut short before its verdict is not a completed review, and a
   # zero exit here would let a scripted caller treat it as one. The report stays archived —
   # this is about the exit status, not the evidence.
-  echo "FAIL [review]: no VERDICT line in the report. The run was cut short or the reviewer"
+  echo "FAIL [review]: no well-formed VERDICT line. Expected exactly one of Accept, Accept"
+  echo "               with Manual Checks, or Reject. The run was cut short or the reviewer"
   echo "               ignored its instructions. The report is archived at $report; read it,"
   echo "               but do not record a verdict the reviewer did not give."
   cat "$report"

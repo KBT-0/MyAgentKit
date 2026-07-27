@@ -32,13 +32,14 @@ navigation tool and becomes a lie about the file's shape.
 | Change | Who |
 |---|---|
 | Add an OPEN item, a question, a constraint that emerged | The agent, freely, at any time |
-| Mark anything DECIDED | {{OWNER_NAME}} only, explicitly, in that session |
+| Write DECIDED for an item {{OWNER_NAME}} explicitly approved in this session | The agent, transcribing |
+| Decide, on its own judgement, that something is DECIDED | Nobody. Never |
 | Change or remove an existing DECIDED item | {{OWNER_NAME}} only |
 
-An agent that hears a decision in conversation records it as **OPEN with a note that the
-owner appeared to decide it**, and asks for confirmation. It does not promote it. The cost
-of a missed capture is a forgotten question; the cost of a wrongly promoted one is every
-future session treating a musing as law.
+The line is between transcribing an approval and inferring one. An agent that hears
+something that sounds like a decision records it as **OPEN with a note that the owner
+appeared to decide it**, and asks. The cost of a missed capture is a forgotten question; the
+cost of a wrongly promoted one is every future session treating a musing as law.
 
 **Nothing is deleted — it is superseded.** When a decision is replaced, the old item stays,
 marked `SUPERSEDED by §x.y`, with its date. The reasoning behind an abandoned direction is

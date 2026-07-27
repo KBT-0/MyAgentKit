@@ -35,8 +35,10 @@ files differ only in how long their contents stay true:
 | `docs/PHASES.md` | This phase | Deleted after harvest |
 | `docs/STATE.md` | Right now | Deleted when the task is done |
 
-A multi-item operation with checkboxes is NOT a phase — it gets its own throwaway file
-(`docs/WORKFLOW.md`). Phases are standing; operations are disposable.
+A multi-item operation with checkboxes is NOT a phase. It gets a throwaway file of its own —
+`docs/CHANGE_ORDER.md`, or whatever the operation is called — which is deleted when the
+operation closes; the rule is in `docs/WORKFLOW.md`. Phases are standing; operations are
+disposable, and neither one is ever tracked inside the other.
 
 ---
 

@@ -56,11 +56,13 @@ Not read per session, but read it when something behaves unexpectedly: `docs/GOT
 - If the code and `docs/PROJECT.md` conflict: inform {{OWNER_NAME}} first; do not silently
   change either.
 - **Writing to `docs/PROJECT.md`:** you may add an OPEN item at any time — capturing a
-  question costs nothing and losing one is expensive. You may NEVER mark anything DECIDED.
-  When {{OWNER_NAME}} appears to settle something in conversation, record it as OPEN with a
-  note that they appeared to decide it, and ask for confirmation. The cost of a missed
-  capture is a forgotten question; the cost of a wrong promotion is every future session
-  treating a musing as law.
+  question costs nothing and losing one is expensive. **You may never mark an item DECIDED
+  on your own judgement.** DECIDED is written only for an item {{OWNER_NAME}} has explicitly
+  approved, in this session, as that item; transcribing their approval is the job, inferring
+  it is not. Anything you concluded, inferred or thought was implied stays OPEN. When they
+  appear to settle something in passing, record it as OPEN with a note that they appeared to
+  decide it, and ask. The cost of a missed capture is a forgotten question; the cost of a
+  wrong promotion is every future session treating a musing as law.
 - **Phase scope is binding too.** `docs/PHASES.md` lists what is deliberately NOT being
   built yet. Needing something on that list is a STOP, not a licence to widen the phase.
 

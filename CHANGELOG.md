@@ -38,8 +38,10 @@ right now, and what are we deliberately not building yet". Both are shipped file
   split the three files implement.
 
 **ACTION** — projects on v0.2 must add both files: copy `core/docs/PROJECT.md` and
-`core/docs/PHASES.md` in, fill them, and add `docs/PROJECT.md` to the reading order in
-`AGENTS.md`. A project with an existing design document under another name (`GDD.md`,
+`core/docs/PHASES.md` in and fill them. Add **`docs/PHASES.md` to the reading order** in
+`AGENTS.md`, as the step after the constitution. Do NOT put `docs/PROJECT.md` in the reading
+order — it is read by section, on demand; putting it there is the cost this release exists
+to avoid. A project with an existing design document under another name (`GDD.md`,
 `SPEC.md`) either renames it or makes `docs/PROJECT.md` the file that owns the Contents;
 two canonical design documents is the duplicate-authority problem this release exists to
 avoid. The gate FAILS until `docs/PROJECT.md` exists, which is deliberate.
