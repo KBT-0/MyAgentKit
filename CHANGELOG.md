@@ -11,6 +11,39 @@ WHY an entry exists belongs in `RESEARCH_LOG.md`; this file records WHAT changed
 
 ---
 
+## v0.3 — 2026-07-27
+
+Project knowledge gets its own layer. Until now the kit had a slot for a design document
+(`{{DESIGN_DOC}}`, a path the project supplied) and nothing at all for "what are we building
+right now, and what are we deliberately not building yet". Both are shipped files now.
+
+- **`docs/PROJECT.md`** replaces the `{{DESIGN_DOC}}` placeholder. Same role — permanent
+  decisions, DECIDED/OPEN tagging, design authority — but a real file at a fixed path, so
+  two placeholders disappear and the constitution stops pointing at something that might not
+  exist. It is NOT in the reading order: sections are numbered, listed in a Contents, and
+  cited by number rather than quoted.
+- **`docs/PHASES.md`** is new and read every session. Current phase in full, later phases
+  one line each, and — the half that earns its place — what is explicitly OUT of scope until
+  later. Promoted from `patterns/staged-prototype.md`, which stays as the long-form
+  reasoning.
+- **An agent may add OPEN items to PROJECT.md freely and may NEVER mark anything DECIDED.**
+  When the owner appears to settle something in conversation, it is recorded as OPEN with a
+  note and a question. A wrongly captured question costs a minute; a wrongly promoted
+  decision is invisible, binding, and compounds.
+- **`scripts/check.sh` fails when a numbered PROJECT.md section is missing from its
+  Contents.** Selective reading is what keeps that file affordable as it grows, and it only
+  works while the Contents is complete. Four self-test cases, sixteen in total now.
+- **No ROADMAP.md**, considered and rejected — the reasoning is in
+  `docs/knowledge-has-three-horizons.md` along with the permanent / episodic / momentary
+  split the three files implement.
+
+**ACTION** — projects on v0.2 must add both files: copy `core/docs/PROJECT.md` and
+`core/docs/PHASES.md` in, fill them, and add `docs/PROJECT.md` to the reading order in
+`AGENTS.md`. A project with an existing design document under another name (`GDD.md`,
+`SPEC.md`) either renames it or makes `docs/PROJECT.md` the file that owns the Contents;
+two canonical design documents is the duplicate-authority problem this release exists to
+avoid. The gate FAILS until `docs/PROJECT.md` exists, which is deliberate.
+
 ## v0.2 — 2026-07-26
 
 The three commands moved out of the Claude Code overlay into a proper plugin, and the kit

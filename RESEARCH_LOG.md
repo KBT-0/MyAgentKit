@@ -255,7 +255,58 @@ must be visible — the same rule as finding #1, applied to the target of a scan
 to its result. The periodic-audit checklist gained the matching question: *does any gate
 guard a path that no longer exists?*
 
-#### 9. Every-session files are a recurring bill, not a style preference — ACCEPTED
+#### 9. Non-goals need a home that is read every session — ACCEPTED
+
+The founding project grew a document the kit had never shipped: a per-stage scope file
+listing, for each stage, the question it answers, what to build, what NOT to build yet, and
+how to tell it was done. Nobody planned it. It appeared because the work needed it, which is
+the strongest signal available that a document belongs in the foundation.
+
+What it prevents is the most expensive habit an agent has. "Build the inventory system"
+gives an agent no edge to stop at, so it invents scope — persistence, a UI, an event system,
+one monolithic file across five modules. "Build the grid placement rules; do NOT add
+persistence, do NOT write UI, those are later phases" is the same task with a fence around
+it. The non-goals are the useful half of a specification and the half everyone skips.
+
+The reason it needs its OWN file rather than a section somewhere: non-goals only work if
+they are in front of the agent before it starts. Put them in the design document and they
+are not read (that file is deliberately not in the reading order). Put them in the state
+file and they are deleted the moment the current task closes, so the next session re-invents
+the same scope.
+
+What went into the kit: `core/docs/PHASES.md`, read every session, holding the current phase
+in full and later phases at one line each. Detail for a distant phase is aspiration, and
+aspiration in an always-loaded file is a bill with nothing behind it.
+
+This also settled the shape of the layer above it. Knowledge has three horizons, not two —
+permanent (`PROJECT.md`, superseded but never deleted), episodic (`PHASES.md`, deleted after
+harvest when a phase closes) and momentary (`STATE.md`). A separate ROADMAP file was
+proposed and rejected: "offline support in v2" is both a decision and a plan, so a roadmap
+document creates a seam with no clear side and the item gets written twice or lost. The long
+view is one line per future phase at the bottom of PHASES.md. Full reasoning in
+`docs/knowledge-has-three-horizons.md`.
+
+#### 10. A living document an agent may write to needs an asymmetric permission — ACCEPTED
+
+The appealing version of a project document is one the agent keeps current from
+conversation. The dangerous version is the same sentence, and the difference is entirely in
+what the agent is allowed to write.
+
+An agent recording decisions autonomously will eventually promote a musing to a settled
+decision, do it silently, and every session afterwards will treat it as law — while the
+constitution's hardest rule says agents implement and do not design. The file meant to hold
+the owner's decisions becomes where the agent's inferences accumulate, indistinguishable
+from the real ones.
+
+What went into the kit, as a deliberately asymmetric rule: **an agent may add OPEN items
+freely and may never mark anything DECIDED.** Hearing what sounds like a decision, it
+records it as OPEN with a note that the owner appeared to settle it, and asks.
+
+The asymmetry is the point. A wrongly captured question is noise somebody deletes in a
+minute. A wrongly promoted decision is invisible, binding on every future session, and
+compounds — nobody re-reads a DECIDED item to ask whether it was ever really decided.
+
+#### 11. Every-session files are a recurring bill, not a style preference — ACCEPTED
 
 Cached input tokens are discounted heavily, which makes the always-loaded prefix — the
 constitution, the architecture map, the state file — the largest single cost lever in a

@@ -6,7 +6,8 @@ codebase grows.
 
 ## How we work — roles
 
-- **LEAD** — plans with {{OWNER_NAME}}. Reads the design document and `ARCHITECTURE.md`.
+- **LEAD** — plans with {{OWNER_NAME}}. Reads `docs/PROJECT.md` (by section), `docs/PHASES.md`
+  and `docs/ARCHITECTURE.md`.
   Produces the task brief (`docs/HANDOFF.md`). Decides model routing. Does not implement.
 - **WORKER** — implements one task in one module. Bound by `AGENTS.md`, the gates, the tests.
 - **REVIEWER** — `docs/REVIEW_GATE.md`. A fresh session, never the writer, preferably a
@@ -19,10 +20,12 @@ a risky change ships. Agents propose; {{OWNER_NAME}} decides.
 
 ## Task lifecycle (every task)
 
-1. **Read:** `AGENTS.md` → `docs/STATE.md` → `docs/ARCHITECTURE.md` → the target folder's
-   `AGENTS.md`. Do not explore beyond the files the task lists; context is a budget.
+1. **Read:** `AGENTS.md` → `docs/PHASES.md` → `docs/STATE.md` → `docs/ARCHITECTURE.md` →
+   the target folder's `AGENTS.md`. Do not explore beyond the files the task lists; context
+   is a budget. `docs/PROJECT.md` is read by SECTION, only when the task needs one.
 2. **Plan:** LIST the files you will touch. If that exceeds one module, STOP and propose
-   splitting the task.
+   splitting the task. Check the task against the current phase's out-of-scope list —
+   needing something on it is a STOP, not a reason to widen the phase.
 3. **Implement:** a small, focused change. No out-of-scope refactors.
 4. **Test and gate:** write or update tests, then run `./scripts/check.sh` before finishing.
    The same script is wired into git as `.githooks/pre-commit`, so a failing gate aborts the
@@ -234,6 +237,7 @@ one names what would have to change before it is worth reopening.
 
 ## Documentation maintenance contract
 
-- {{DESIGN_DOC}} changes only with {{OWNER_NAME}}'s approval.
+- `docs/PROJECT.md` changes only with {{OWNER_NAME}}'s approval for anything DECIDED; an
+  agent may add OPEN items freely (`AGENTS.md`, design authority).
 - `docs/ARCHITECTURE.md` is updated in the SAME task that adds a module or moves a boundary.
 - These files are worth more than the code: code can be regenerated, context cannot.

@@ -34,7 +34,7 @@ surface. For this project:
 ## What the reviewer reads
 
 Root `AGENTS.md` → `docs/ARCHITECTURE.md` → the diff → ALL callers of every changed public
-member (grep them; do not assume). Design authority is {{DESIGN_DOC}} — its DECIDED items
+member (grep them; do not assume). Design authority is `docs/PROJECT.md` — its DECIDED items
 are law, and the reviewer never decides an OPEN one.
 
 ## Review priorities (in order)
@@ -53,7 +53,8 @@ are law, and the reviewer never decides an OPEN one.
    go RED, and did it ship with a negative test?
 7. **Regression blast radius:** every caller of every changed public member.
 8. **Scope creep:** changes the task did not require. Flag them; do not fix them.
-9. **Design conformance:** conflicts with a DECIDED item in {{DESIGN_DOC}}.
+9. **Design conformance:** conflicts with a DECIDED item in `docs/PROJECT.md`, or work
+   the current phase in `docs/PHASES.md` puts out of scope.
 
 ## Verdicts
 

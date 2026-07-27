@@ -112,24 +112,42 @@ One topic per turn. Suggested order, because each answer informs the next:
    - If they use a different reviewing CLI, record that `REVIEW_CLI_BIN` swaps the binary
      but the invocation block in `scripts/review.sh` also needs editing for a different flag
      interface. Do not leave them believing the env var alone is enough.
-7. **Does this project need a design document?** A game or a product with unsettled
-   mechanics does. A CLI tool with an obvious scope does not — and a design document nobody
-   reads is worse than none, because the constitution will keep pointing at it.
+7. **What is the FIRST phase, and what is deliberately not in it?** Not the whole plan —
+   the one question the project should answer first, and the things that are tempting but
+   must wait. Order by risk: the assumption that would hurt most if it turned out wrong goes
+   first, even when it is not the foundation.
 
-## Phase 3 — the design document (only if Phase 2 said yes)
+## Phase 3 — PROJECT.md and PHASES.md
 
-Do NOT generate a design document from a template. Interview the owner the way a design
-partner would:
+Both files ship as skeletons and both are LIVING documents. Do not fill them in from a
+template, and do not generate plausible content to make them look complete — an agent
+writing sections nobody asked for is inventing a project rather than recording one.
+
+**`docs/PROJECT.md`** starts nearly empty and grows through conversation over the project's
+whole life. In this session, write only what the owner actually told you. Interview them the
+way a design partner would:
 
 - Challenge weak ideas. Say when something contradicts something they said earlier.
-- Surface the contradictions rather than smoothing them over.
-- Record every decision with its rationale.
-- Tag each item **DECIDED** or **OPEN**. Never mark something DECIDED that the owner has not
-  explicitly approved, and never resolve an OPEN item yourself later — that is the rule the
-  constitution enforces on every agent that follows you.
+- Surface contradictions rather than smoothing them over.
+- Record every decision WITH its rationale — a rule without its reason gets deleted later.
+- Tag each item **DECIDED** or **OPEN**. Mark DECIDED only what the owner explicitly
+  approved in this session. Everything you inferred is OPEN.
+- Number every `##` section and list it in the Contents. `scripts/check.sh` fails when a
+  section is missing from the Contents, because selective reading is the only thing that
+  keeps this file affordable as it grows.
 
-Write it wherever the owner wants it; `docs/DESIGN.md` is the default. Whatever you choose
-becomes `{{DESIGN_DOC}}` everywhere else.
+A project with nothing settled yet gets a PROJECT.md holding one paragraph and a list of
+OPEN questions. That is a correct outcome, not a failure — the file exists so that the next
+decision has somewhere to land instead of dissolving into a chat log.
+
+**`docs/PHASES.md`** gets the answer to question 7: the current phase's question, what is in
+scope, what is explicitly NOT, and how anyone can tell it is done. Spend real effort on the
+not-yet list; it is the half that stops an agent inventing scope, and it is the half people
+skip. Later phases get ONE LINE each — detail is written when a phase becomes current.
+
+If the owner does not know their phases yet, say so in the file and leave it. A phase
+invented by an agent is worse than an empty section, because the constitution makes it
+binding on everyone who comes after.
 
 ## Phase 4 — write the foundation
 
@@ -146,9 +164,21 @@ above is what catches them, and the overlay's own document explains each one.
 | `{{PROJECT_NAME}}` | The repository's name, as it should read in a heading |
 | `{{PROJECT_DESCRIPTION}}` | The one-paragraph answer from Phase 2, tightened |
 | `{{OWNER_NAME}}` | Who decides. Used throughout the duties section |
-| `{{DESIGN_DOC}}` | Path to the design document, or the literal phrase "the project README" if there is none |
-| `{{DESIGN_DOC_LINE}}` | One line in `AGENTS.md` saying where design authority lives and how to read it selectively |
 | `{{LANGUAGE_EXCEPTION}}` | Empty if everything is in English. If a document is deliberately in another language, name it and say why |
+
+### The current phase (`docs/PHASES.md`)
+
+Read every session, so keep every one of these tight. Detail for later phases is written
+when they become current, never now.
+
+| Placeholder | What goes in |
+|---|---|
+| `{{CURRENT_PHASE}}` | A short name, e.g. "Phase 0 — skeleton and gates" |
+| `{{PHASE_QUESTION}}` | ONE sentence: the question this phase answers, or the risk it retires. If it cannot be phrased as a question, it is a wish list, not a phase |
+| `{{PHASE_IN_SCOPE}}` | What gets built, as a list. Concrete enough that "is this in scope?" has an answer |
+| `{{PHASE_OUT_OF_SCOPE}}` | What is tempting and must WAIT, each naming the phase that owns it instead. Spend as much effort here as on the line above — this is the half that stops scope invention |
+| `{{PHASE_ACCEPTANCE}}` | Commands or observations, never adjectives. A subjective criterion is valid only if it names WHO decides and when |
+| `{{LATER_PHASES}}` | One line per phase, in order. The question each will answer, nothing more. Say "not decided yet" if that is the truth |
 
 ### Risk and review
 

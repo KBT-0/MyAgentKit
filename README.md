@@ -39,6 +39,10 @@ None of that is fixed by a better prompt. It is fixed by structure.
   one-line pointers to it, never a second copy.
 - **If it is not in the state file, it did not happen.** That file is the only cross-tool
   memory — and it is transient: permanent knowledge passes THROUGH it into a real home.
+- **Knowledge has three horizons, so it has three files.** What the project IS and has
+  decided (permanent), what we are building now and deliberately NOT building yet
+  (episodic), and what is happening right now (momentary). Collapsing them is how a state
+  file becomes a diary and a design document stops being true.
 - **The author of a change never reviews it.** Review happens in a fresh session,
   preferably a different model, because the value of a second opinion is that it is
   decorrelated.
@@ -89,7 +93,7 @@ answered by a script. Pass `--note "..."` to leave an agenda the interview must 
 | `bootstrap.sh` | Mechanical install: copy, mkdir, wire the git hooks path, record the kit version |
 | `setup/INTERVIEW.md` | The real entry point — a conversational setup an agent runs with you |
 | `setup/RESEARCH_PROTOCOL.md` | How the agent researches the current tooling ecosystem before advising you |
-| `core/` | The universal layer: constitution, workflow, review gate, handoff template, state file, gates, hooks |
+| `core/` | The universal layer: constitution, the three knowledge files (PROJECT / PHASES / STATE), architecture map, workflow, review gate, handoff template, gates, hooks |
 | `overlays/` | Optional layers, added and never assumed: `unity` for the engine (assembly layout, the batchmode test gate, and a default MCP server — CoplayDev's tool-agnostic `MCP for Unity` — with the scoping traps that cost real time to find), `claude-code` for that tool's project-local hooks and review subagent |
 | `plugin/` | The Claude Code plugin: the three `/myagentkit:*` commands. Installed once per machine, not copied per project |
 | `patterns/` | Optional reading — the reasoning behind specific hard-won designs. Not copied by default |

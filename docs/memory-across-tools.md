@@ -45,7 +45,7 @@ not a question anyone answers with `git log -p`.
 The fix is a routing rule plus a tag:
 
 - **Before deleting a line, ask: is this still true next month?** If yes, it must reach a
-  permanent home BEFORE it leaves — the design document, the architecture map, the workflow,
+  permanent home BEFORE it leaves — `PROJECT.md`, the architecture map, the workflow,
   or the trap log. Permanent knowledge is never stored in the state file; it passes THROUGH
   it.
 - **Tag it when you write it.** `[LESSON]` or `[GOTCHA]`. Harvesting is then a grep rather

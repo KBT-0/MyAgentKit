@@ -8,7 +8,11 @@ one-line pointer to this one; AGENTS.md is canonical.
 
 {{PROJECT_DESCRIPTION}}
 
-{{DESIGN_DOC_LINE}}
+**Design authority is `docs/PROJECT.md`** — what this project is and every decision that
+shaped it, each marked DECIDED or OPEN. It is deliberately NOT in the reading order: read
+the section you need through its Contents and cite it by number, never load it whole.
+`docs/PHASES.md` is the short companion you DO read every session — the current phase and,
+more importantly, what is deliberately out of scope until later.
 
 ## Multi-tool project
 
@@ -28,12 +32,16 @@ one-line pointer to this one; AGENTS.md is canonical.
 ## Reading order (new session)
 
 1. This file
-2. `docs/STATE.md` — cross-session work state (small; read EVERY session). Updating it at
+2. `docs/PHASES.md` — what we are building now, and what is deliberately OUT of scope
+   (short; read EVERY session). If a task needs something on the not-yet list, STOP and
+   report instead of widening the phase.
+3. `docs/STATE.md` — cross-session work state (small; read EVERY session). Updating it at
    session end is YOUR job, not {{OWNER_NAME}}'s.
-3. `docs/ARCHITECTURE.md` — module map and boundaries
-4. The target folder's `AGENTS.md` / module `README.md`
-5. IF NEEDED, the relevant section of {{DESIGN_DOC}} — find it via the table of contents;
-   never load the whole file
+4. `docs/ARCHITECTURE.md` — module map and boundaries
+5. The target folder's `AGENTS.md` / module `README.md`
+6. IF NEEDED, the relevant SECTION of `docs/PROJECT.md` — find it through that file's
+   Contents and cite it by number (`PROJECT §4.2`). Never load the whole file, and never
+   copy its text elsewhere: a quotation is a duplicate, a citation is not.
 
 Not read per session, but read it when something behaves unexpectedly: `docs/GOTCHAS.md`
 (environment and tooling traps this project has already paid for).
@@ -42,11 +50,19 @@ Not read per session, but read it when something behaves unexpectedly: `docs/GOT
 
 ### Design authority
 
-- Never produce code or design contradicting a DECIDED item in {{DESIGN_DOC}}.
+- Never produce code or design contradicting a DECIDED item in `docs/PROJECT.md`.
 - Never decide an OPEN item — flag it as a question for {{OWNER_NAME}} and stop.
 - Agents implement; they do not design. Product and design decisions are {{OWNER_NAME}}'s.
-- If the code and the design document conflict: inform {{OWNER_NAME}} first; do not
-  silently change either.
+- If the code and `docs/PROJECT.md` conflict: inform {{OWNER_NAME}} first; do not silently
+  change either.
+- **Writing to `docs/PROJECT.md`:** you may add an OPEN item at any time — capturing a
+  question costs nothing and losing one is expensive. You may NEVER mark anything DECIDED.
+  When {{OWNER_NAME}} appears to settle something in conversation, record it as OPEN with a
+  note that they appeared to decide it, and ask for confirmation. The cost of a missed
+  capture is a forgotten question; the cost of a wrong promotion is every future session
+  treating a musing as law.
+- **Phase scope is binding too.** `docs/PHASES.md` lists what is deliberately NOT being
+  built yet. Needing something on that list is a STOP, not a licence to widen the phase.
 
 ### Architecture boundaries (most are also compiler/CI-enforced)
 
@@ -93,10 +109,11 @@ FAILING for the right reason.
   is a bill paid every session.
 - **Completed work is DELETED, not marked DONE.** The history lives in git.
 - Before deleting a line, ask: *is this still true next month?* If yes, it must have a
-  permanent home BEFORE it leaves — {{DESIGN_DOC}} (a decision), `docs/ARCHITECTURE.md`
-  (a module or boundary), `docs/WORKFLOW.md` (a process or gate constraint),
-  `docs/GOTCHAS.md` (an environment or tooling trap). Permanent knowledge is never written
-  INTO STATE.md; it passes THROUGH it.
+  permanent home BEFORE it leaves — `docs/PROJECT.md` (a decision, as a numbered item),
+  `docs/ARCHITECTURE.md` (a module or boundary), `docs/WORKFLOW.md` (a process or gate
+  constraint), `docs/GOTCHAS.md` (an environment or tooling trap). If it is true only until
+  this phase ends, it belongs in `docs/PHASES.md` instead. Permanent knowledge is never
+  written INTO STATE.md; it passes THROUGH it.
 - **TAG permanent findings as you write them:** prefix a line worth keeping with `[LESSON]`
   (process or architecture insight) or `[GOTCHA]` (environment or tooling trap). Harvesting
   is then a grep, not a re-read — and **a tagged line may not be deleted until it has a
@@ -147,7 +164,8 @@ on, it is closed for this session.
 
 ### STOP — pause the work and ask (rare)
 
-- The request contradicts a DECIDED item in {{DESIGN_DOC}} → name the item and the conflict.
+- The request contradicts a DECIDED item in `docs/PROJECT.md` → name the item and the conflict.
+- The work needs something `docs/PHASES.md` lists as out of scope → say which phase owns it.
   Do not silently comply, and do not silently refuse.
 - The work reaches an OPEN design item → you do not decide design. Ask.
 - A new third-party dependency or MCP server would be needed → ask first, always.
@@ -185,6 +203,6 @@ Tone: brief and direct. {{OWNER_NAME}} wants to be told, not managed.
 - [ ] `./scripts/check.sh` PASS?
 - [ ] No boundary violations?
 - [ ] Module README updated if a public API changed?
-- [ ] No conflict with a DECIDED item in {{DESIGN_DOC}}?
+- [ ] No conflict with a DECIDED item in `docs/PROJECT.md`, and inside the current phase's scope?
 - [ ] `docs/STATE.md` updated, with a tool+model trace?
 - [ ] Short summary: what changed, why, which files.

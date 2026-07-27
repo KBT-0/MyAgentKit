@@ -133,6 +133,23 @@ self_test() {
   expect_fail "an all-whitespace build/test command is unconfigured, not a no-op" \
     GATE_BUILD_CMD_OVERRIDE="  "
 
+  # --- PROJECT.md navigability ------------------------------------------------
+  proj_ok="$work/project_ok.md"; proj_bad="$work/project_bad.md"; proj_young="$work/project_young.md"
+  {
+    echo "# PROJECT"; echo; echo "## Contents"; echo
+    echo "- 1. What this project is"; echo "- 2. Money"; echo
+    echo "## 1. What this project is"; echo "a line"; echo
+    echo "## 2. Money"; echo "another line"
+  } > "$proj_ok"
+  # Section 2 exists but was never added to the Contents — the drift this gate catches.
+  sed '/- 2\. Money/d' "$proj_ok" > "$proj_bad"
+  { echo "# PROJECT"; echo; echo "## Contents"; echo; echo "(nothing decided yet)"; } > "$proj_young"
+
+  expect_pass "PROJECT gate accepts a file whose Contents lists every section" PROJECT_FILE="$proj_ok"
+  expect_fail "PROJECT gate rejects a section missing from the Contents"       PROJECT_FILE="$proj_bad"
+  expect_fail "PROJECT gate rejects a MISSING project file"                    PROJECT_FILE="$work/absent.md"
+  expect_pass "PROJECT gate stays quiet on a young file with no sections yet"  PROJECT_FILE="$proj_young"
+
   # --- scanner integrity ------------------------------------------------------
   # The switch makes scan_grep report failure the way a broken grep would. This proves the
   # flag-file plumbing end to end — a failed scan cannot end in CHECK: PASS — though not a
@@ -272,6 +289,46 @@ else
   elif [ "$lines" -gt 400 ]; then
     echo "NOTE [state]: $STATE_FILE is $lines lines with work still active. Not a problem"
     echo "              by itself — but harvest as you go, so the prune is small later."
+  fi
+fi
+
+# ---------------------------------------------------------------------------
+# 2b) PROJECT.md navigability
+# ---------------------------------------------------------------------------
+# docs/PROJECT.md grows for the life of the project, so it is NOT in the session reading
+# order — agents read the section they need through its Contents and cite it by number.
+# That only works while the Contents is complete, and a table of contents nobody maintains
+# is worse than none: it stops being navigation and becomes a false claim about the file's
+# shape, which is exactly when someone gives up and loads the whole file instead.
+#
+# So this is mechanical rather than a rule in prose: every "## N." heading must appear in
+# the Contents section. A file with no numbered sections yet is fine — that is a young
+# project, not a broken one.
+PROJECT_FILE="${PROJECT_FILE:-docs/PROJECT.md}"
+if [ ! -f "$PROJECT_FILE" ]; then
+  echo "FAIL [project]: $PROJECT_FILE does not exist. It is where permanent decisions live;"
+  echo "                without it they end up in docs/STATE.md and are pruned away."
+  fail=1
+elif ! grep -q "^## Contents" "$PROJECT_FILE"; then
+  echo "FAIL [project]: $PROJECT_FILE has no '## Contents' section, so it cannot be read"
+  echo "                selectively and every reader will load the whole file."
+  fail=1
+else
+  # Headings first, then the Contents block, then the set difference. Compared on the
+  # heading TEXT rather than on a link target, because the text is what a human maintains.
+  awk '/^## Contents/{f=1;next} /^## /{f=0} f' "$PROJECT_FILE" > "$work/toc"
+  missing=""
+  # A literal-string grep (-F) so that punctuation in a heading is not read as a pattern.
+  sed -n 's/^## \([0-9][0-9.]*\.\{0,1\}[[:space:]].*\)$/\1/p' "$PROJECT_FILE" > "$work/heads"
+  while IFS= read -r h; do
+    [ -n "$h" ] || continue
+    grep -qF -- "$h" "$work/toc" || missing="$missing
+  - $h"
+  done < "$work/heads"
+  if [ -n "$missing" ]; then
+    echo "FAIL [project]: $PROJECT_FILE has numbered sections missing from its Contents:$missing"
+    echo "                Add them, or renumber. Citations elsewhere point at these numbers."
+    fail=1
   fi
 fi
 

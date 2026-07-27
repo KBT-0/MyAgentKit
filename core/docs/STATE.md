@@ -11,7 +11,8 @@ every session, in every tool, so its length is a bill paid every session.
 
 | What you learned | Where it goes |
 |---|---|
-| A product or design decision | {{DESIGN_DOC}} |
+| A product or design decision | `docs/PROJECT.md`, as a numbered item |
+| Something true only until this phase ends | `docs/PHASES.md` |
 | A module, boundary or contract | `docs/ARCHITECTURE.md` |
 | A process rule or gate constraint | `docs/WORKFLOW.md` |
 | An environment or tooling trap | `docs/GOTCHAS.md` |
